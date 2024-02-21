@@ -1,0 +1,15 @@
+{
+    "strip": {
+        "LED_COUNT": 300,
+        "LED_PIN": 18,
+        "LED_FREQ_HZ": 800000,
+        "LED_DMA": 10,
+        "LED_BRIGHTNESS": 255,
+        "LED_INVERT": false,
+        "LED_CHANNEL": 0
+    },
+    "websocket": {
+        "server_address": "192.168.2.100",
+        "server_port": "8080"
+    }
+}

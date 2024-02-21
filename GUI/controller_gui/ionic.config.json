@@ -1,0 +1,7 @@
+{
+  "name": "controller_gui",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "vue-vite"
+}
