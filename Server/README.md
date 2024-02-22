@@ -1,48 +1,38 @@
-# LED Controller
-This repository contains the code for the LED Controller, which receives LED control commands from the LED Control API and controls a WS2812B LED strip connected to a Raspberry Pi.
-### Note
-Check out my implementation of an Webbased-GUI for this API: [LED-Controller-GUI](https://github.com/LetsGaming/LED-Controller-GUI)
 
-## Important
-* This implementation is only meant for local deployment! 
-* There are basically no security checks added, so there is no rate-limiting or much input validation or anything else!!
-    - If you want to add those implementations, feel free to create a fork of this repository.
+# Server Component - Flask API and WebSocket Server
 
-## Features
-The LED Controller provides the following features:
-* Control the WS2812B LED strip based on received commands.
+### This part of the repository focuses on the implementation of a Flask API and a WebSocket server, designed to facilitate communication between a Raspberry Pi-based client, controlling the LED-Strip, and an Ionic Vue-based GUI.
 
-## Prerequisites
-Before using the LED Controller, ensure you have the following prerequisites:
-
-* Python (version X.X.X)
-* Raspberry Pi with the RPi.GPIO library installed
-* WS2812B LED strip and library (e.g., rpi_ws281x)
-* Depending on the number of LEDs (anything above 30), a separate power supply unit (PSU) for the LED strip is recommended. 
-    - The rule of thumb is 20mA average per LED and 60mA for white at full brightness.
-
+Before getting started, ensure that you have the following dependencies installed:
+* Python 3.6 or higher
+  
 ## Installation
-To install and set up the LED Controller, follow these steps:
+Clone this repository to your local machine:
 
-1. Clone the repository:
-```bash
-git clone https://github.com/LetsGaming/led-controller-api.git
+```bash 
+git clone https://github.com/LetsGaming/LED-Controller-Websocket.git
+cd LED-Controller-Websocket/Server
 ```
-
-2. Install the dependencies:
+Install the required dependencies:
 ```bash
-cd PATH/TO/YOUR/CLONE
 pip install -r requirements.txt
 ```
 
-## Starting the LED Controller API
-To start the LED Controller API, use the following command:
+## Configuration
+Review and update the configuration settings in the config.py file to match your specific setup.<br>
+The API is, by default, running on all possible interfaces on port 5000 <br>
+The Websocket Server also runs on all possible interfaces on port 8080
 
+## Usage
+Run the Flask API and WebSocket server:
 ```bash
-cd PATH/TO/YOUR/CLONE
 python app.py
 ```
-The API will start and wait for requests to control the LED strip.
+The server should now be running, ready to accept connections from both the Raspberry Pi client and the Ionic Vue-based GUI.
 
-## Contributing
-Contributions are welcome! If you find any issues or have suggestions for improvements, please open an issue or submit a pull request.
+## API Endpoints
+The Flask API provides the following endpoints:
+TBD
+
+## WebSocket Server
+The WebSocket server is integrated into the Flask app and is used for real-time communication between the server and the Raspberry Pi client. WebSocket commands are defined in the commands.py file.
