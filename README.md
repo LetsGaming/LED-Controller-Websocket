@@ -59,7 +59,7 @@ Access the GUI through your web browser at http://localhost:8100.
 Run the Client on Raspberry Pi:
 ```bash
 cd client
-python client.py
+python client.py --name NAME_OF_THE_CONTROLLER_TO_BE_SHOWN
 ```
 Ensure that the Raspberry Pi is connected to the LED strip via GPIO pins set in the config.json.<br>
 Now you can control the LED strip using the GUI and observe real-time updates!
