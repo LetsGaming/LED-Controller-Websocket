@@ -1,0 +1,8 @@
+{
+    "allowed_origins": [
+      "http://your.ip.address",
+      "http://localhost",
+      "https://yourfrontenddomain.com"
+    ]
+  }
+  

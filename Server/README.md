@@ -19,7 +19,7 @@ pip install -r requirements.txt
 ```
 
 ## Configuration
-Review and update the configuration settings in the config.py file to match your specific setup.<br>
+Review and update the configuration settings in the config_structure.jsoo file to match your specific setup. safe your config setup as 'config.json' in the same path<br>
 The API is, by default, running on all possible interfaces on port 5000 <br>
 The Websocket Server also runs on all possible interfaces on port 8080
 
