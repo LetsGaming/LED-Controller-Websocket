@@ -87,7 +87,7 @@ import {
   IonToast,
   IonSegment,
   IonSegmentButton,
-  IonIcon
+  IonIcon,
 } from "@ionic/vue";
 import { settings } from "ionicons/icons";
 
@@ -123,7 +123,7 @@ export default defineComponent({
     IonToast,
     IonSegment,
     IonSegmentButton,
-    IonIcon
+    IonIcon,
   },
   setup() {
     return { settings };
@@ -197,7 +197,7 @@ export default defineComponent({
             }
           : undefined;
 
-        const data = await fetchJson(endpoint, options, true);
+        const data = await fetchJson(endpoint, options, false);
         this.handleMessageEvent(data.message.message || data.message);
       } catch (error) {
         console.error(`Error starting ${category} animation:`, error);
@@ -211,7 +211,7 @@ export default defineComponent({
             const response = await fetchJson(
               `/led/animations/${category}`,
               undefined,
-              true
+              false
             );
             this.animations[category] = response;
           })

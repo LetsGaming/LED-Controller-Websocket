@@ -1,9 +1,10 @@
-const SERVER_BASE_URL = ""; // ADD URL of your Server here, or use localhost
+import config from "../../config.json";
 
+const SERVER_BASE_URL = config.serverBaseUrl || "";
 const LOCALHOST_BASE_URL = "http://localhost";
 const API_PORT = ":5000";
 
-export const fetchJson = async (url: string, options = {}, useLocalhost: boolean = false): Promise<any> => {
+export const fetchJson = async (url: string, options = {}, useLocalhost = false) => {
     const baseUrl = useLocalhost ? LOCALHOST_BASE_URL + API_PORT : SERVER_BASE_URL;
     const requestUrl = `${baseUrl}${url}`;
 

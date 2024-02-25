@@ -64,7 +64,7 @@ export default defineComponent({
         const data = await fetchJson(
           `/led/get_brightness/${this.selectedControllerId}`,
           undefined,
-          true
+          false
         );
         this.emitMessageEvent(`Controller brightness: ${data.message.data}`);
       } catch (error) {
@@ -82,7 +82,7 @@ export default defineComponent({
             },
             body: JSON.stringify({ brightness: this.brightness }),
           },
-          true
+          false
         );
         this.emitMessageEvent(data.message.message);
       } catch (error) {

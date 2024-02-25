@@ -50,7 +50,7 @@ export default defineComponent({
         const response = await fetchJson(
           `/led/get_online_state/${this.selectedControllerId}`,
           undefined,
-          true
+          false
         );
         this.emitMessageEvent(`Online state: ${response.message.data}`);
       } catch (error) {
@@ -68,7 +68,7 @@ export default defineComponent({
             },
             body: JSON.stringify({ online }),
           },
-          true
+          false
         );
         this.emitMessageEvent(data.message.message);
       } catch (error) {
