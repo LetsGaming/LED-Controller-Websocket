@@ -7,7 +7,7 @@ ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 def create_app():
     app = Flask(__name__)
-    CORS(app)
+    CORS(app, origins=["http://localhost"])
     
     # Dynamically import and register API blueprints
     api_directory = 'api'
