@@ -1,22 +1,10 @@
 import asyncio
-import logging
 import threading
 import time
 from flask import Blueprint, jsonify, request, make_response, Response, abort
 from api.config import start_animations, standard_animations, custom_animations, special_animations
 from websocket.websocket_handler_server import WebSocketHandlerServer
-
-def _init_logger():
-    logging.basicConfig(
-    level=logging.INFO,  # Set the desired logging level
-    format="%(asctime)s [%(levelname)s] %(message)s",
-    datefmt="%Y-%m-%d %H:%M:%S",
-    )
-
-    # Create a logger instance
-    return logging.getLogger(__name__)
-
-LOGGER = _init_logger()
+from utils.logger import LOGGER
 
 # Global Constants
 LED_API_PORT = 8080
