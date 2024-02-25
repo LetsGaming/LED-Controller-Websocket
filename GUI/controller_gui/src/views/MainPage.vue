@@ -119,7 +119,7 @@ export default defineComponent({
         const response_data = await fetchJson(
           `/led/connected_controller`,
           undefined,
-          false
+          true
         );
 
         const connectedControllersArray = Object.values(response_data.data);

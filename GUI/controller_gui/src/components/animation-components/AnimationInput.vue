@@ -35,13 +35,24 @@
           v-if="hasMultipleColors && !hasColorArguments && !hasFadingArguments"
         >
           <ion-label>Colors:</ion-label>
-          <div style="display: flex; flex-wrap: wrap; justify-content: center; width: 100%;">
+          <div
+            style="
+              display: flex;
+              flex-wrap: wrap;
+              justify-content: center;
+              width: 100%;
+            "
+          >
             <div
               v-for="(color, index) in inputArgsColors?.colors"
               :key="index"
-              style="margin-right: 10px; margin-bottom: 10px; display: flex;"
+              style="margin-right: 10px; margin-bottom: 10px; display: flex"
             >
-              <input v-model="inputArgsColors.colors[index]" type="color" style="align-self: center;"/>
+              <input
+                v-model="inputArgsColors.colors[index]"
+                type="color"
+                style="align-self: center"
+              />
               <ion-button @click="removeColor(index)">Remove</ion-button>
             </div>
           </div>
@@ -61,6 +72,7 @@
                 type="number"
                 :label="arg"
                 label-placement="start"
+                min="1"
               ></ion-input>
             </ion-item>
           </template>

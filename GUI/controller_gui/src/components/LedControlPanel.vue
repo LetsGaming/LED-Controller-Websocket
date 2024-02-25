@@ -197,8 +197,8 @@ export default defineComponent({
             }
           : undefined;
 
-        const data = await fetchJson(endpoint, options, false);
-        this.handleMessageEvent(data.message.message);
+        const data = await fetchJson(endpoint, options, true);
+        this.handleMessageEvent(data.message.message || data.message);
       } catch (error) {
         console.error(`Error starting ${category} animation:`, error);
       }
@@ -211,7 +211,7 @@ export default defineComponent({
             const response = await fetchJson(
               `/led/animations/${category}`,
               undefined,
-              false
+              true
             );
             this.animations[category] = response;
           })

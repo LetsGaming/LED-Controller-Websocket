@@ -1,4 +1,4 @@
-const SERVER_BASE_URL = "http://192.168.2.100:5000";
+const SERVER_BASE_URL = ""; // ADD URL of your Server here, or use localhost
 const LOCALHOST_BASE_URL = "http://127.0.0.1:5000";
 
 export const fetchJson = async (url: string, options = {}, useLocalhost: boolean): Promise<any> => {
