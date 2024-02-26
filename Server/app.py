@@ -41,9 +41,5 @@ def favicon():
     """This function handles the request for the favicon.ico file."""
     return send_file(path_or_file=os.path.join(ROOT_DIR, "favicon.ico"), mimetype='image/vnd.microsoft.icon')
 
-'''
-for development only, use this if you only want to deploy in local network:
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=5000)
-'''
-
