@@ -71,7 +71,7 @@ class WebSocketServer:
 
     async def run_server_thread(self):
         try:
-            await asyncio.gather(self.__init_server(), self.__handle_disconnections())
+            await asyncio.gather(self.__init_server(), self.__handle_disconnection())
         except KeyboardInterrupt:
             pass
         except Exception as e:
