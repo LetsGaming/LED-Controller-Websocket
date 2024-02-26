@@ -3,14 +3,14 @@ import threading
 import time
 from flask import Blueprint, jsonify, request, make_response, Response, abort
 from api.config import start_animations, standard_animations, custom_animations, special_animations
-from websocket.websocket_handler_server import WebSocketHandlerServer
-from utils.logger import LOGGER
+from websocket.websocket_server import WebSocketServer
 
 # Global Constants
 LED_API_PORT = 8080
 EXPECTED_WEBSOCKET_RESPONSES = {}
 
 # Initialize WebSocketHandlerServer
+websocket_server = None
 websocket_handler = None
 
 def websocket_server_callback(sid, response_data):
@@ -23,10 +23,11 @@ def websocket_server_callback(sid, response_data):
         current_response['response_data'] = response_data
 
 def initialize_websocket_handler():
-    global websocket_handler
-    websocket_handler = WebSocketHandlerServer(LOGGER, LED_API_PORT, websocket_server_callback)
-    websocket_thread = threading.Thread(target=lambda: asyncio.run(websocket_handler.init_handler()))
+    global websocket_server, websocket_handler
+    websocket_server = WebSocketServer(LED_API_PORT, websocket_server_callback)
+    websocket_thread = threading.Thread(target=lambda: asyncio.run(websocket_server.run_server_thread()))
     websocket_thread.start()
+    websocket_handler = websocket_server.get_websocket_handler()
 
 initialize_websocket_handler()
 
@@ -42,7 +43,7 @@ def _check_controller_id_exists(controller_id):
     if controller_id is None:
         abort(400, description='Controller ID is required.')
 
-    connected_clients = websocket_handler.get_connected_clients()
+    connected_clients = websocket_server.get_connected_clients()
 
     if controller_id not in connected_clients:
         abort(404, description=f'Controller ID {controller_id} does not exist')
@@ -84,7 +85,7 @@ def get_connected_controller():
     Returns:
         tuple: Tuple containing JSON response and HTTP status code.
     """
-    response = websocket_handler.get_connected_clients()
+    response = websocket_server.get_connected_clients()
     amount_of_clients = len(response)
     return (jsonify(message="Connected clients found", data=response), 200) if amount_of_clients > 0 else (jsonify(message="No connected clients"), 204)
 

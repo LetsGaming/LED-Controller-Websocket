@@ -3,7 +3,7 @@ import websockets
 import json
 
 async def client():
-    uri = "ws://192.168.2.128:80"
+    uri = "ws://192.168.2.128:8080"
     async with websockets.connect(uri) as websocket:
         # You are connected at this point. You can send/receive messages.
         while True:

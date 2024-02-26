@@ -10,13 +10,17 @@ connected_controller_response = requests.get(connected_controller_url)
 
 # Check the response
 if connected_controller_response.status_code == 200:
-    connected_controllers = connected_controller_response.json()['data']
+    connected_controllers = connected_controller_response.json()
 
     # Check if there are connected controllers
     if connected_controllers:
         
         # Use the first connected controller ID
-        controller_id = connected_controllers[0]
+        # Extracting the first key under 'data'
+        first_key = next(iter(connected_controllers['data']))
+
+        # Accessing the ID using the first key
+        controller_id = connected_controllers['data'][first_key]['id']
         
         turn_on_url = f"{base_domain}/led/set_online_state/{controller_id}"
         
