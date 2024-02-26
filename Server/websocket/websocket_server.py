@@ -13,7 +13,7 @@ class WebSocketServer:
         self.port = port
         self.callback = callback
 
-    async def __init_server(self):
+    async def init_server(self):
         host = '0.0.0.0'
         try:
             async with serve(self.__handle_connection, host, self.port, ping_interval=None) as server:
@@ -68,11 +68,3 @@ class WebSocketServer:
 
     def get_connected_clients(self):
         return self.connected_clients
-
-    async def run_server_thread(self):
-        try:
-            await asyncio.gather(self.__init_server(), self.__handle_disconnection())
-        except KeyboardInterrupt:
-            pass
-        except Exception as e:
-            LOGGER.error(f"WebSocket server error: {e}")

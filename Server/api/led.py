@@ -25,7 +25,7 @@ def websocket_server_callback(sid, response_data):
 def initialize_websocket_handler():
     global websocket_server, websocket_handler
     websocket_server = WebSocketServer(LED_API_PORT, websocket_server_callback)
-    websocket_thread = threading.Thread(target=lambda: asyncio.run(websocket_server.run_server_thread()))
+    websocket_thread = threading.Thread(target=lambda: asyncio.run(websocket_server.init_server()))
     websocket_thread.start()
     websocket_handler = websocket_server.get_websocket_handler()
 
