@@ -40,7 +40,7 @@ class WebSocketServer:
             async for message in websocket:
                 data = json.loads(message)
                 LOGGER.info(f"Message from client {sid}: {data}")
-                await self.handler.handle_response(sid, data)
+                await self.handle_response(sid, data)
         except websockets.exceptions.ConnectionClosed:
             pass
         finally:
