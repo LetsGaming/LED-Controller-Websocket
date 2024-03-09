@@ -43,6 +43,8 @@ class WebSocketHandlerClient:
             'rainbow_cycle': self.led_controller.rainbow_cycle,
             'rainbow_comet': self.led_controller.rainbow_comet,
             'theater_chase_rainbow': self.led_controller.theater_chase_rainbow,
+            'rainbow_bouce': self.led_controller.rainbow_bounce,
+            'random_bounce': self.led_controller.random_bounce
         }
 
         # Map custom and special animation names to methods
@@ -52,6 +54,7 @@ class WebSocketHandlerClient:
             'strobe': self.led_controller.strobe,
             'color_chase': self.led_controller.color_chase,
             'custom_rainbow_cycle': self.led_controller.custom_rainbow_cycle,
+            'color_burst': self.led_controller.color_burst,
         }
         
         self.special_animations = {
@@ -61,6 +64,7 @@ class WebSocketHandlerClient:
             'scanner_effect': self.led_controller.scanner_effect,
             'yoyo_theater': self.led_controller.yoyo_theater,
             'breathing_effect': self.led_controller.breathing_effect,
+            'color_ripple': self.led_controller.color_ripple,
         }
 
     async def connect(self):
