@@ -133,6 +133,7 @@ class LEDController():
         else:
             return OFFLINE_ERROR
 
+    # Start Animations
     def set_white(self):
         return self._handle_animation(SetWhite(self.strip))
 
@@ -142,6 +143,7 @@ class LEDController():
     def custom_fill(self, red, green, blue, percentage):
         return self._handle_animation(CustomFill(self.strip, red, green, blue, percentage))
 
+    # Special Animations
     def blink(self, red, green, blue, blinking_speed):
         return self._handle_animation(Blink(self.strip, red, green, blue, blinking_speed))
 
@@ -161,6 +163,10 @@ class LEDController():
     def breathing_effect(self, red, green, blue, breathing_duration):
         return self._handle_animation(Breathing_Effect(self.strip, red, green, blue, breathing_duration))
 
+    def color_ripple(self, ripple_speed):
+        return self._handle_animation(Color_Ripple(self.strip, ripple_speed))
+    
+    # Custom Animations
     def color_wipe(self, red, green, blue):
         return self._handle_animation(Color_Wipe(self.strip, red, green, blue))
 
@@ -176,6 +182,10 @@ class LEDController():
     def custom_rainbow_cycle(self, colors):
         return self._handle_animation(Custom_Rainbow_Cycle(self.strip, colors))
 
+    def color_burst(self, red, green, blue):
+        return self._handle_animation(Color_Burst(self.strip, red, green, blue))
+    
+    #Standard Animations
     def rainbow_cycle(self):
         return self._handle_animation(Rainbow_Cycle(self.strip))
 
@@ -184,3 +194,9 @@ class LEDController():
 
     def theater_chase_rainbow(self):
         return self._handle_animation(Theater_Chase_Rainbow(self.strip))
+
+    def rainbow_bounce(self):
+        return self._handle_animation(Rainbow_Bounce(self.strip))
+
+    def random_bounce(self):
+        return self._handle_animation(Random_Bounce(self.strip))

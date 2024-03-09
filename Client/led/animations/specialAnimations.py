@@ -316,3 +316,49 @@ class Breathing_Effect(Animation):
         except Exception as e:
             print(f"Something went wrong: {e}")
             return False
+
+class Color_Ripple(Animation):
+    """Create a ripple effect with a changing color."""
+    def __init__(self, strip, ripple_speed):
+        super().__init__(self._color_ripple)
+        self.strip = strip
+        self.ripple_speed = int(ripple_speed)
+
+    def _color_ripple(self):
+        try:
+            num_pixels = self.strip.numPixels()
+            self.animationStarted = True
+
+            while not self.stopAnimation:
+                for center in range(num_pixels):
+                    if self.stopAnimation:
+                        break
+                    for i in range(num_pixels):
+                        if self.stopAnimation:
+                            break
+                        distance = abs(center - i)
+                        brightness = int(255 * (1 - distance / num_pixels))
+                        color = Color(brightness, brightness, brightness)
+                        self.strip.setPixelColor(i, color)
+
+                    self.strip.show()
+                    time.sleep(1 / self.ripple_speed)
+
+                for i in range(num_pixels):
+                    if self.stopAnimation:
+                        break
+                    self.strip.setPixelColor(i, 0)
+
+                self.strip.show()
+                time.sleep(1 / self.ripple_speed)
+
+            for i in range(num_pixels):
+                if self.stopAnimation:
+                    break
+                self.strip.setPixelColor(i, 0)
+
+            self.strip.show()
+
+        except Exception as e:
+            print(f"Something went wrong: {e}")
+            return False

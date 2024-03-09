@@ -1,3 +1,4 @@
+import random
 import time
 from led.utils import *
 
@@ -81,6 +82,84 @@ class Theater_Chase_Rainbow(Animation):
                             if self.stopAnimation:
                                 break
                             self.strip.setPixelColor(i + q, 0)
+        except Exception as e:
+            print(f"Something went wrong: {e}")
+            return False
+        
+class Rainbow_Bounce(Animation):
+    """Bounce a rainbow color back and forth across the LED strip."""
+    def __init__(self, strip):
+        super().__init__(self._rainbow_bounce)
+        self.strip = strip
+        self.position = 0
+        self.direction = 1
+
+    def _rainbow_bounce(self):
+        try:
+            num_pixels = self.strip.numPixels()
+            self.animationStarted = True
+
+            while not self.stopAnimation:
+                for i in range(num_pixels):
+                    if self.stopAnimation:
+                        break
+                    self.strip.setPixelColor(i, wheel((i + self.position) & 255))
+
+                self.strip.show()
+                time.sleep(0.05)
+
+                self.position += self.direction
+
+                if self.position == num_pixels - 1 or self.position == 0:
+                    self.direction *= -1  # Reverse direction when reaching the end
+
+            for i in range(num_pixels):
+                if self.stopAnimation:
+                    break
+                self.strip.setPixelColor(i, 0)
+
+            self.strip.show()
+
+        except Exception as e:
+            print(f"Something went wrong: {e}")
+            return False
+
+class Random_Bounce(Animation):
+    """Bounce a random color back and forth across the LED strip."""
+    def __init__(self, strip):
+        super().__init__(self._color_bounce)
+        self.strip = strip
+        self.color = Color(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
+        self.position = 0
+        self.direction = 1
+
+    def _color_bounce(self):
+        try:
+            num_pixels = self.strip.numPixels()
+            self.animationStarted = True
+
+            while not self.stopAnimation:
+                for i in range(num_pixels):
+                    if self.stopAnimation:
+                        break
+                    self.strip.setPixelColor(i, 0)
+
+                self.strip.setPixelColor(self.position, self.color)
+                self.strip.show()
+                time.sleep(0.05)
+
+                self.position += self.direction
+
+                if self.position == num_pixels - 1 or self.position == 0:
+                    self.direction *= -1  # Reverse direction when reaching the end
+
+            for i in range(num_pixels):
+                if self.stopAnimation:
+                    break
+                self.strip.setPixelColor(i, 0)
+
+            self.strip.show()
+
         except Exception as e:
             print(f"Something went wrong: {e}")
             return False

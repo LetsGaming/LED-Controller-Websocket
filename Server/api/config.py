@@ -38,6 +38,18 @@ standard_animations = {
         'description': 'Produces a theater chase effect with a rainbow of colors.',
         'args': []
     },
+    'rainbow_bounce': {
+        'name': 'Rainbow Bounce',
+        'animation_name': 'rainbow_bounce',
+        'description': 'Bounce a rainbow color back and forth across the LED strip.',
+        'args': [],
+    },
+    'random_bounce': {
+        'name': 'Random Bounce',
+        'animation_name': 'random_bounce',
+        'description': 'Bounce a random color back and forth across the LED strip.',
+        'args': [],
+    },
 }
 
 custom_animations = {
@@ -68,6 +80,12 @@ custom_animations = {
     'color_chase': {
         'name': 'Color Chase',
         'description': 'Generates a chasing effect with custom colors.',
+        'args': ['red', 'green', 'blue']
+    },
+    'color_burst': {
+        'name': 'Color Burst',
+        'animation_name': 'color_burst',
+        'description': 'Creates bursts of color across the entire strip.',
         'args': ['red', 'green', 'blue']
     }
 }
@@ -108,5 +126,11 @@ special_animations = {
         'animation_name': 'breathing_effect',
         'description': 'Create a breathing effect by gradually changing the brightness of the color.',
         'args': ['red', 'green', 'blue', 'breathing_duration']
-    }
+    },
+    'color_ripple': {
+        'name': 'Color Ripple',
+        'animation_name': 'color_ripple',
+        'description': 'Create a ripple effect with a changing color.',
+        'args': ['ripple_speed'],
+    },
 }

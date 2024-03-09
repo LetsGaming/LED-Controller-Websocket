@@ -8,13 +8,13 @@
       <IonButton @click="getBrightness" style="display: flex"
         >Get Brightness</IonButton
       >
-      <div style="display: flex">
-        <IonInput
-          v-model="brightness"
-          type="number"
+      <div class="brightness-control">
+        <IonRange
+          @ion-change="calcBrightness"
           placeholder="Enter brightness"
-          lab
-        ></IonInput>
+          :pin="true"
+          :pin-formatter="pinFormatter"
+        ></IonRange>
         <IonButton @click="setBrightness">Set Brightness</IonButton>
       </div>
     </IonCardContent>
@@ -27,9 +27,11 @@ import {
   IonCardHeader,
   IonCardTitle,
   IonCardContent,
-  IonInput,
+  IonRange,
   IonButton,
   IonToast,
+  IonRow,
+  IonCol,
 } from "@ionic/vue";
 
 import { defineComponent } from "vue";
@@ -43,9 +45,11 @@ export default defineComponent({
     IonCardHeader,
     IonCardTitle,
     IonCardContent,
-    IonInput,
+    IonRange,
     IonButton,
     IonToast,
+    IonRow,
+    IonCol,
   },
   props: {
     selectedControllerId: {
@@ -53,12 +57,21 @@ export default defineComponent({
       required: true,
     },
   },
+  setup() {
+    return {
+      pinFormatter: (value: number) => `${value}%`,
+    };
+  },
   data() {
     return {
       brightness: 0,
     };
   },
   methods: {
+    calcBrightness(ev: any) {
+      const brightnessPercentage = ev.detail.value;
+      this.brightness = Math.round((brightnessPercentage / 100) * 255);
+    },
     async getBrightness() {
       try {
         const data = await fetchJson(
@@ -95,3 +108,16 @@ export default defineComponent({
   },
 });
 </script>
+
+<style scoped>
+.brightness-control {
+  display: flex;
+  justify-content: space-between; /* Adjust as needed */
+  align-items: center; /* Adjust as needed */
+}
+
+.brightness-control ion-range {
+  min-width: 150px;
+  margin: 5px;
+}
+</style>
