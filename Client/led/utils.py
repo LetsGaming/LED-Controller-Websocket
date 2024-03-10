@@ -44,6 +44,16 @@ def custom_wheel(pos, colors):
     b = color_start[2] + (color_end[2] - color_start[2]) * remainder // color_segment
     return Color(r, g, b)
 
+def fade_wheel(wheel_value):
+    """Apply fading effect to the rainbow color."""
+    brightness = 0.8  # Adjust the fade factor as needed
+    color = wheel(wheel_value)
+    return Color(
+        int(color.r * brightness),
+        int(color.g * brightness),
+        int(color.b * brightness)
+    )
+
 class SunsetProvider():
     def __init__(self, country_tz, city, call_at_sunset, logger: Logger):
         self.logger = logger

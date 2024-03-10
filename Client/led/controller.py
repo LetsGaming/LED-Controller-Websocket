@@ -163,8 +163,8 @@ class LEDController():
     def breathing_effect(self, red, green, blue, breathing_duration):
         return self._handle_animation(Breathing_Effect(self.strip, red, green, blue, breathing_duration))
 
-    def color_ripple(self, ripple_speed):
-        return self._handle_animation(Color_Ripple(self.strip, ripple_speed))
+    def color_ripple(self, red, green, blue, ripple_speed):
+        return self._handle_animation(Color_Ripple(self.strip, red, green, blue, ripple_speed))
     
     # Custom Animations
     def color_wipe(self, red, green, blue):
@@ -181,9 +181,6 @@ class LEDController():
 
     def custom_rainbow_cycle(self, colors):
         return self._handle_animation(Custom_Rainbow_Cycle(self.strip, colors))
-
-    def color_burst(self, red, green, blue):
-        return self._handle_animation(Color_Burst(self.strip, red, green, blue))
     
     #Standard Animations
     def rainbow_cycle(self):

@@ -82,12 +82,6 @@ custom_animations = {
         'description': 'Generates a chasing effect with custom colors.',
         'args': ['red', 'green', 'blue']
     },
-    'color_burst': {
-        'name': 'Color Burst',
-        'animation_name': 'color_burst',
-        'description': 'Creates bursts of color across the entire strip.',
-        'args': ['red', 'green', 'blue']
-    }
 }
 
 special_animations = {
@@ -131,6 +125,6 @@ special_animations = {
         'name': 'Color Ripple',
         'animation_name': 'color_ripple',
         'description': 'Create a ripple effect with a changing color.',
-        'args': ['ripple_speed'],
+        'args': ['red', 'green', 'blue', 'ripple_speed'],
     },
 }

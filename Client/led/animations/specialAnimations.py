@@ -319,10 +319,11 @@ class Breathing_Effect(Animation):
 
 class Color_Ripple(Animation):
     """Create a ripple effect with a changing color."""
-    def __init__(self, strip, ripple_speed):
+    def __init__(self, strip, red, green, blue, ripple_speed):
         super().__init__(self._color_ripple)
         self.strip = strip
         self.ripple_speed = int(ripple_speed)
+        self.start_color = Color(red, green, blue)
 
     def _color_ripple(self):
         try:
@@ -338,7 +339,11 @@ class Color_Ripple(Animation):
                             break
                         distance = abs(center - i)
                         brightness = int(255 * (1 - distance / num_pixels))
-                        color = Color(brightness, brightness, brightness)
+                        color = Color(
+                            int(self.start_color.r * (1 - brightness / 255)),
+                            int(self.start_color.g * (1 - brightness / 255)),
+                            int(self.start_color.b * (1 - brightness / 255))
+                        )
                         self.strip.setPixelColor(i, color)
 
                     self.strip.show()
@@ -347,7 +352,7 @@ class Color_Ripple(Animation):
                 for i in range(num_pixels):
                     if self.stopAnimation:
                         break
-                    self.strip.setPixelColor(i, 0)
+                    self.strip.setPixelColor(i, Color(0, 0, 0, 0))
 
                 self.strip.show()
                 time.sleep(1 / self.ripple_speed)
@@ -355,7 +360,7 @@ class Color_Ripple(Animation):
             for i in range(num_pixels):
                 if self.stopAnimation:
                     break
-                self.strip.setPixelColor(i, 0)
+                self.strip.setPixelColor(i, Color(0, 0, 0, 0))
 
             self.strip.show()
 

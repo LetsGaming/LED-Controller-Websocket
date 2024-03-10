@@ -43,7 +43,7 @@ class WebSocketHandlerClient:
             'rainbow_cycle': self.led_controller.rainbow_cycle,
             'rainbow_comet': self.led_controller.rainbow_comet,
             'theater_chase_rainbow': self.led_controller.theater_chase_rainbow,
-            'rainbow_bouce': self.led_controller.rainbow_bounce,
+            'rainbow_bounce': self.led_controller.rainbow_bounce,
             'random_bounce': self.led_controller.random_bounce
         }
 
@@ -54,7 +54,6 @@ class WebSocketHandlerClient:
             'strobe': self.led_controller.strobe,
             'color_chase': self.led_controller.color_chase,
             'custom_rainbow_cycle': self.led_controller.custom_rainbow_cycle,
-            'color_burst': self.led_controller.color_burst,
         }
         
         self.special_animations = {

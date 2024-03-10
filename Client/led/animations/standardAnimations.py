@@ -103,7 +103,7 @@ class Rainbow_Bounce(Animation):
                 for i in range(num_pixels):
                     if self.stopAnimation:
                         break
-                    self.strip.setPixelColor(i, wheel((i + self.position) & 255))
+                    self.strip.setPixelColor(i, fade_wheel((i + self.position) & 255))
 
                 self.strip.show()
                 time.sleep(0.05)
@@ -144,9 +144,26 @@ class Random_Bounce(Animation):
                         break
                     self.strip.setPixelColor(i, 0)
 
+                # Fade out the previous position
+                prev_position = (self.position - self.direction) % num_pixels
+                self.strip.setPixelColor(prev_position, Color(
+                    int(self.color.r * 0.8),
+                    int(self.color.g * 0.8),
+                    int(self.color.b * 0.8)
+                ))
+
+                # Set the current position with the full color
                 self.strip.setPixelColor(self.position, self.color)
                 self.strip.show()
                 time.sleep(0.05)
+
+                # Fade in the next position
+                next_position = (self.position + self.direction) % num_pixels
+                self.strip.setPixelColor(next_position, Color(
+                    int(self.color.r * 0.8),
+                    int(self.color.g * 0.8),
+                    int(self.color.b * 0.8)
+                ))
 
                 self.position += self.direction
 
