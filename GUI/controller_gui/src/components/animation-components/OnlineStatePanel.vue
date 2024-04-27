@@ -25,7 +25,7 @@ import {
 
 import { defineComponent } from "vue";
 
-import { fetchJson } from "@/provider/Utills";
+import { fetchJson } from "@/provider/Utils";
 
 export default defineComponent({
   emits: ["messageEvent"],

@@ -34,8 +34,11 @@ async def main(name=None):
     LOGGER = _init_logger()
 
     strip_config = config["strip"]
-    led_controller = LEDController(LOGGER, strip_config)
-    wbs_handler = WebSocketHandlerClient(name, config["websocket"]["server_address"], config["websocket"]["server_port"], led_controller, LOGGER)
+    sunset_config = config["sunset_provider"]
+    led_controller = LEDController(LOGGER, strip_config, sunset_config)
+    
+    wbs_config = config["websocket"]
+    wbs_handler = WebSocketHandlerClient(name, wbs_config["server_address"], wbs_config["server_port"], led_controller, LOGGER)
     await wbs_handler.connect()
 
 if __name__ == "__main__":

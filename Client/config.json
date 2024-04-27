@@ -11,5 +11,13 @@
     "websocket": {
         "server_address": "192.168.2.100",
         "server_port": "8080"
+    },
+    "sunset_provider": {
+        "disable_provider": false,
+        "openweathermap_api_key": "",
+        "time_zone": "Europe/Berlin",
+        "use_static": false,
+        "static_location": ["lat", "long"],
+        "turn_off_time": "00:00"
     }
 }

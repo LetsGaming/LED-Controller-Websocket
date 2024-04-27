@@ -94,7 +94,7 @@ import { settings } from "ionicons/icons";
 import GeneralControls from "@/components/animation-components/segments/GeneralControls.vue";
 import AnimationControlPanel from "@/components/animation-components/AnimationControlPanel.vue";
 
-import { fetchJson } from "../provider/Utills";
+import { fetchJson } from "@/provider/Utils";
 
 interface AnimationData {
   [key: string]: {};

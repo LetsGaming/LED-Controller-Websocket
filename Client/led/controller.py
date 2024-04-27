@@ -10,7 +10,7 @@ from led.animations.specialAnimations import *
 OFFLINE_ERROR = "The LED-Strip is turned OFF!"
 
 class LEDController():
-    def __init__(self, logger: Logger, strip_config):
+    def __init__(self, logger: Logger, strip_config, sunset_config):
         self.logger = logger
         self.strip_config = strip_config
 
@@ -26,7 +26,7 @@ class LEDController():
         self.run_startup_animation(self.strip_config["LED_BRIGHTNESS"])
         
         # Start the sunset activation loop in a separate thread
-        suntime_provider = SunsetProvider("Europe/Berlin", "Berlin", self.set_online_state, self.logger)
+        suntime_provider = SunsetProvider(sunset_config, self.set_online_state, self.logger)
         self.sunset_activation_thread = threading.Thread(target=suntime_provider.auto_activate_and_deactivate)
         self.sunset_activation_thread.start()
         self.logger.info("Started LED-Controller")

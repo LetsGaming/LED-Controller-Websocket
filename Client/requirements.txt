@@ -1,6 +1,6 @@
 rpi_ws281x
 adafruit-circuitpython-neopixel
 adafruit-blinka
-astral
-pytz
+suntime
+geopy
 websockets

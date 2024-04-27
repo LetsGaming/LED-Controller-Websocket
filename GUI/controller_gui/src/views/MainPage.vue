@@ -75,7 +75,7 @@ import {
   IonRouterOutlet,
 } from "@ionic/vue";
 
-import { fetchJson } from "@/provider/Utills";
+import { fetchJson } from "@/provider/Utils";
 
 interface Controller {
   name: string;
