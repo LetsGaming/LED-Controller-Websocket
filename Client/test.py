@@ -13,7 +13,6 @@ class SunsetProvider():
         if not sunset_config['disable_provider']:
             self.logger = logger
             self.call_at_sunset = call_at_sunset
-            self.api_key = sunset_config['openweathermap_api_key']
             self.time_zone = pytz.timezone(sunset_config['time_zone'])
             self.location = self._get_location(sunset_config)
 
@@ -54,21 +53,20 @@ class SunsetProvider():
 
     def auto_activate_and_deactivate(self):
         while True:
-            if self.sunset_time:
-                current_time = datetime.now(self.time_zone)
+            current_time = datetime.now(self.time_zone)
 
-                # Check and activate at sunset
-                if current_time >= self.sunset_time:
-                    self.call_at_sunset(True)
-                    # Update sunset time for the next day
-                    next_day = (current_time + timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)
-                    self.sunset_time = self._get_sunset_time(next_day)
-                    self._log_sunset_time()
+            # Check and activate at sunset
+            if current_time >= self.sunset_time:
+                self.call_at_sunset(True)
+                # Update sunset time for the next day
+                next_day = (current_time + timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)
+                self.sunset_time = self._get_sunset_time(next_day)
+                self._log_sunset_time()
 
-                # Check and deactivate at turn_off_time
-                if self.turn_off_time:
-                    if current_time.hour == self.turn_off_time.hour and current_time.minute == self.turn_off_time.minute:
-                        self.call_at_sunset(False)
+            # Check and deactivate at turn_off_time
+            if self.turn_off_time:
+                if current_time.hour == self.turn_off_time.hour and current_time.minute == self.turn_off_time.minute:
+                    self.call_at_sunset(False)
 
             time.sleep(60)
 
@@ -76,23 +74,33 @@ class SunsetProvider():
         if self.location is not None:
             if date is None:
                 date = datetime.now()
-            if self.api_key:
-                latitude = self.location.latitude
-                longitude = self.location.longitude
-                url = f"http://api.openweathermap.org/data/2.5/weather?lat={latitude}&lon={longitude}&appid={self.api_key}"
-                response = requests.get(url)
 
-                try:
-                    data = response.json()
-                    sunset_time_data = data['sys']['sunset']
-                    sunset_time = datetime.fromtimestamp(sunset_time_data, self.time_zone)
-                    return sunset_time
-                except json.JSONDecodeError:
-                    self.logger.error("Unable to parse JSON response from OpenWeatherMap API")
-                    return None
-            else:
-                self.logger.error("OpenWeatherMap Api Key not set! Please configure it in config.json")
+            latitude = self.location.latitude
+            longitude = self.location.longitude
+            
+            formatted_date = date.strftime("%Y-%m-%d")
+            
+            url = f"https://api.sunrise-sunset.org/json?lat={latitude}&lng={longitude}&date={formatted_date}&formatted=0"
+            response = requests.get(url)
+
+            try:
+                data = response.json()
+                sunset_time_str = data['results']['sunset']
+                
+                # Parse sunset time string into naive datetime object
+                sunset_time_data = datetime.fromisoformat(sunset_time_str[:-6]) # Remove timezone offset
+                
+                # Localize the naive datetime object with UTC timezone
+                sunset_time = pytz.utc.localize(sunset_time_data)
+                
+                # Convert UTC time to the specified timezone
+                sunset_time = sunset_time.astimezone(self.time_zone)
+                
+                return sunset_time
+            except json.JSONDecodeError:
+                self.logger.error("Unable to parse JSON response from OpenWeatherMap API")
                 return None
+
 
     def _log_sunset_time(self):
         if self.sunset_time is not None:

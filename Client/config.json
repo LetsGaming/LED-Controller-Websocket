@@ -14,7 +14,6 @@
     },
     "sunset_provider": {
         "disable_provider": false,
-        "openweathermap_api_key": "",
         "time_zone": "Europe/Berlin",
         "use_static": false,
         "static_location": ["lat", "long"],

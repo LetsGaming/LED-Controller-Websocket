@@ -59,7 +59,6 @@ class SunsetProvider():
         if not sunset_config['disable_provider']:
             self.logger = logger
             self.call_at_sunset = call_at_sunset
-            self.api_key = sunset_config['openweathermap_api_key']
             self.time_zone = pytz.timezone(sunset_config['time_zone'])
             self.location = self._get_location(sunset_config)
 
@@ -124,17 +123,30 @@ class SunsetProvider():
 
             latitude = self.location.latitude
             longitude = self.location.longitude
-            url = f"http://api.openweathermap.org/data/2.5/weather?lat={latitude}&lon={longitude}&appid={self.api_key}"
+            
+            formatted_date = date.strftime("%Y-%m-%d")
+            
+            url = f"https://api.sunrise-sunset.org/json?lat={latitude}&lng={longitude}&date={formatted_date}&formatted=0"
             response = requests.get(url)
 
             try:
                 data = response.json()
-                sunset_time_data = data['sys']['sunset']
-                sunset_time = datetime.fromtimestamp(sunset_time_data, self.time_zone)
+                sunset_time_str = data['results']['sunset']
+                
+                # Parse sunset time string into naive datetime object
+                sunset_time_data = datetime.fromisoformat(sunset_time_str[:-6]) # Remove timezone offset
+                
+                # Localize the naive datetime object with UTC timezone
+                sunset_time = pytz.utc.localize(sunset_time_data)
+                
+                # Convert UTC time to the specified timezone
+                sunset_time = sunset_time.astimezone(self.time_zone)
+                
                 return sunset_time
             except json.JSONDecodeError:
                 self.logger.error("Unable to parse JSON response from OpenWeatherMap API")
                 return None
+
 
     def _log_sunset_time(self):
         if self.sunset_time is not None:
