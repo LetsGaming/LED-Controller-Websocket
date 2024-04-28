@@ -1,10 +1,9 @@
-import { createRouter, createWebHistory } from "@ionic/vue-router";
-import { RouteRecordRaw } from "vue-router";
+import { createRouter } from "@ionic/vue-router";
+import { RouteRecordRaw, createWebHashHistory } from "vue-router";
 
-import MainPage from "@/views/MainPage.vue";
-
+const MainWrapper = () => import("@/views/MainWrapper.vue");
 // Import LedControlPanel component
-import LedControlPanel from "@/components/LedControlPanel.vue";
+const LedControlPanel = () => import("@/components/LedControlPanel.vue");
 
 // Add the route in your router setup
 const routes: Array<RouteRecordRaw> = [
@@ -15,7 +14,7 @@ const routes: Array<RouteRecordRaw> = [
   },
   {
     path: "",
-    component: MainPage,
+    component: MainWrapper,
     children: [
       {
         path: "led-control-panel/:controllerId",
@@ -27,7 +26,7 @@ const routes: Array<RouteRecordRaw> = [
 ];
 
 const router = createRouter({
-  history: createWebHistory(import.meta.env.BASE_URL),
+  history: createWebHashHistory(import.meta.env.BASE_URL),
   routes,
 });
 

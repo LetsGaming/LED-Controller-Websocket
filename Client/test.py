@@ -39,6 +39,7 @@ class SunsetProvider():
         if sunset_config['use_static']:
             static_location = sunset_config['static_location']
             location = Location(static_location[0], static_location[1])
+            return location
         try:
             response = requests.get('http://ipinfo.io/json')
             data = response.json()
