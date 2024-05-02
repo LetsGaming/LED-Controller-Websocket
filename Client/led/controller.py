@@ -26,8 +26,8 @@ class LEDController():
         self.run_startup_animation(self.strip_config["LED_BRIGHTNESS"])
         
         # Start the sunset activation loop in a separate thread
-        suntime_provider = SunsetProvider(sunset_config, self.set_online_state, self.logger)
-        self.sunset_activation_thread = threading.Thread(target=suntime_provider.auto_activate_and_deactivate)
+        sunset_provider = SunsetProvider(sunset_config, self.set_online_state, self.logger)
+        self.sunset_activation_thread = threading.Thread(target=sunset_provider.auto_activate_and_deactivate)
         self.sunset_activation_thread.start()
         self.logger.info("Started LED-Controller")
         

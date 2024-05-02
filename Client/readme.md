@@ -25,7 +25,7 @@ The sunset provider is configured with the following parameters:
 * time_zone: The time zone used for the sunset time calculation.
 * use_static: A flag indicating whether to use a static location for the sunset time calculation.
 * static_location: The static location used for the sunset time calculation (latitude and longitude).
-* turn_off_time: The time at which the LED strip should be turned off. Either 24h or 12h format
+* turn_off_time: The time at which the LED strip should be turned off. Either 24h or 12h format (20:00 / 8:00 PM)
 
 ## Usage
 To use this project, follow these steps:

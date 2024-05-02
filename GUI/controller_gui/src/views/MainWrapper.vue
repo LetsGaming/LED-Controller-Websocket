@@ -1,7 +1,7 @@
 <template>
   <IonPage>
     <IonContent>
-      s<MainPage></MainPage>
+      <MainPage></MainPage>
     </IonContent>
   </IonPage>
 </template>
