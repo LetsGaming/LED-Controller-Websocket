@@ -256,13 +256,16 @@ class WebSocketHandlerClient:
             json.dump(data, f, indent=4)
             
     def _load_animation_from_file(self):
-        with open(SAVE_PATH, 'r') as f:
-            data = json.load(f)
-            animation_type = data['type']
-            data.remove('type')
-            if animation_type == 'standard':
-                self.start_standard_animation(data)
-            elif animation_type == 'custom':
-                self.start_custom_animation(data)
-            elif animation_type == 'special':
-                self.start_special_animation(data)
+        try:
+            with open(SAVE_PATH, 'r') as f:
+                data = json.load(f)
+                animation_type = data['type']
+                data.remove('type')
+                if animation_type == 'standard':
+                    self.start_standard_animation(data)
+                elif animation_type == 'custom':
+                    self.start_custom_animation(data)
+                elif animation_type == 'special':
+                    self.start_special_animation(data)
+        except FileNotFoundError:
+            pass
