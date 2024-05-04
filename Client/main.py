@@ -21,16 +21,20 @@ async def main(name=None):
     """
     Main function to initialize and run the LED controller and WebSocket handler.
     """
-    config = load_config()
+    try:
+        config = load_config()
 
-    strip_config = config["strip"]
-    sunset_config = config["sunset_provider"]
-    led_controller = LEDController(LOGGER, strip_config, sunset_config)
-    
-    wbs_config = config["websocket"]
-    wbs_handler = WebSocketHandlerClient(name, wbs_config["server_address"], wbs_config["server_port"], led_controller, LOGGER)
-    await wbs_handler.connect()
+        strip_config = config["strip"]
+        sunset_config = config["sunset_provider"]
+        led_controller = LEDController(LOGGER, strip_config, sunset_config)
+        
+        wbs_config = config["websocket"]
+        wbs_handler = WebSocketHandlerClient(name, wbs_config["server_address"], wbs_config["server_port"], led_controller, LOGGER)
+        await wbs_handler.connect()
+    except Exception as e:
+        LOGGER.error(f"Error: {e}")
 
+# Run the main function if this script is executed directly
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="LED Controller with WebSocket Handler")
     parser.add_argument("--name", help="Specify a name for the WebSocket handler")
