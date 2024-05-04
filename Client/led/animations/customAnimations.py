@@ -1,6 +1,6 @@
 import random
 import time
-from led.utils import *
+from utils.utils import *
 
 class Color_Wipe(Animation):
     """Wipe color across display a pixel at a time."""

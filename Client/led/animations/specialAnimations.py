@@ -1,6 +1,6 @@
 import time
 import random
-from led.utils import *
+from utils.utils import *
 
 def fill_color(strip, red, green, blue):
     """Fills all pixels in a specific color"""

@@ -1,4 +1,4 @@
-from led.utils import *
+from utils.utils import *
 
 class SetWhite(Animation):
     """Set all pixels to white and halfs the brightness."""

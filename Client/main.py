@@ -6,6 +6,8 @@ import argparse
 from led.controller import LEDController
 from websocket.websocket_handler import WebSocketHandlerClient
 
+from utils.logger import LOGGER
+
 def _init_logger():
     logging.basicConfig(
     level=logging.INFO,  # Set the desired logging level
@@ -31,7 +33,6 @@ async def main(name=None):
     Main function to initialize and run the LED controller and WebSocket handler.
     """
     config = load_config()
-    LOGGER = _init_logger()
 
     strip_config = config["strip"]
     sunset_config = config["sunset_provider"]

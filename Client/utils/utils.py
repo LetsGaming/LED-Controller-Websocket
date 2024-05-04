@@ -1,17 +1,58 @@
 import json
-import logging
-import os
-from datetime import datetime, timedelta
-from logging import Logger
 import time
-
+from datetime import datetime, timedelta
 import pytz
+from logging import Logger
 import requests
 
-from utils.utils import Animation
-from led.animations.customAnimations import *
+def validate_rgb_values(red, green, blue):
+    try:
+        red = int(red)
+        green = int(green)
+        blue = int(blue)
+        if is_within_range(red, 0, 255) and is_within_range(green, 0, 255) and is_within_range(blue, 0, 255):
+            return True
+        else: return False
+    except ValueError:
+        return False   
+     
+def is_within_range(value, range_start, range_end):
+    """Checks if a given value is within a specified range."""
+    return range_start <= value <= range_end
 
-CACHE_FILE = "last_animation_cache.json"
+def wheel(pos):
+    """Generate rainbow colors across 0-255 positions."""
+    if pos < 85:
+        return Color(pos * 3, 255 - pos * 3, 0)
+    elif pos < 170:
+        pos -= 85
+        return Color(255 - pos * 3, 0, pos * 3)
+    else:
+        pos -= 170
+        return Color(0, pos * 3, 255 - pos * 3)
+
+def custom_wheel(pos, colors):
+    """Generate custom colors across 0-255 positions."""
+    num_colors = len(colors)
+    color_segment = 255 // (num_colors - 1)
+    segment = min(pos // color_segment, num_colors - 2)
+    remainder = pos % color_segment
+    color_start = colors[segment]
+    color_end = colors[segment + 1]
+    r = color_start[0] + (color_end[0] - color_start[0]) * remainder // color_segment
+    g = color_start[1] + (color_end[1] - color_start[1]) * remainder // color_segment
+    b = color_start[2] + (color_end[2] - color_start[2]) * remainder // color_segment
+    return Color(r, g, b)
+
+def fade_wheel(wheel_value):
+    """Apply fading effect to the rainbow color."""
+    brightness = 0.8  # Adjust the fade factor as needed
+    color = wheel(wheel_value)
+    return Color(
+        int(color.r * brightness),
+        int(color.g * brightness),
+        int(color.b * brightness)
+    )
 
 class SunsetProvider():
     def __init__(self, sunset_config, call_at_sunset, logger: Logger):
@@ -196,58 +237,65 @@ class Location:
     def __init__(self, latitude: float, longitude: float):
         self.latitude = latitude
         self.longitude = longitude
+        
+class Animation():
+    def __init__(self, animation_func):
+        self._animation_func = animation_func
+        self.stopAnimation = True
+        self.is_running = False
+        self.animationStarted = False
 
-class LEDController:
-    def __init__(self, logger: Logger):
-      self.logger = logger
-      
-    def _save_last_animation(self, animation: Animation):
-        try:
-            with open(CACHE_FILE, 'w') as file:
-                json.dump(animation.serialize(), file)
-        except Exception as e:
-            self.logger.error("Error saving last animation:", str(e))
+    def start(self):
+        self.stopAnimation = False
+        self.is_running = True
+        self._animation_func()
+        self.is_running = False
+        
+    def stop(self):
+        self.stopAnimation = True
+        while self.is_running:
+            time.sleep(0.1)
+        for i in range(self.strip.numPixels()):
+            self.strip.setPixelColor(i, 0)
+        self.strip.show()
 
-    def _load_last_animation(self):
-        try:
-            with open(CACHE_FILE, 'r') as file:
-                data = json.load(file)
-                return Animation.deserialize(data)
-        except FileNotFoundError:
-            return None
-        except Exception as e:
-            self.logger.error("Error loading last animation:", str(e))
-            return None
+    def isStarted(self):
+        return self.animationStarted
 
-def test_function(lean: bool):
-    if lean:
-        print("Sunset")
-    else:
-        print("Turn off")
+"""
+    Same as in rpi_ws281x.Color and rpi_ws281x.RGBW
+    This was copied and pasted to decrease needed imports
+    I take no credit for these Functions!
+"""
+class RGBW(int):
+    def __new__(self, r, g=None, b=None, w=None):
+        if (g, b, w) == (None, None, None):
+            return int.__new__(self, r)
+        else:
+            if w is None:
+                w = 0
+            return int.__new__(self, (w << 24) | (r << 16) | (g << 8) | b)
 
-def _init_logger():
-    logging.basicConfig(
-    level=logging.INFO,  # Set the desired logging level
-    format="%(asctime)s [%(levelname)s] %(message)s",
-    datefmt="%Y-%m-%d %H:%M:%S",
-    )
+    @property
+    def r(self):
+        return (self >> 16) & 0xff
 
-    # Create a logger instance
-    return logging.getLogger(__name__)
+    @property
+    def g(self):
+        return (self >> 8) & 0xff
 
-def load_config():
+    @property
+    def b(self):
+        return (self) & 0xff
+
+    @property
+    def w(self):
+        return (self >> 24) & 0xff
+
+
+def Color(red, green, blue, white=0):
+    """Convert the provided red, green, blue color to a 24-bit color value.
+    Each color component should be a value 0-255 where 0 is the lowest intensity
+    and 255 is the highest intensity.
     """
-    Load configuration from the 'config.json' file located in the same directory as this script.
-    """
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    config_path = os.path.join(script_dir, "config.json")
-
-    with open(config_path, 'r') as file:
-        return json.load(file)
-
-config = load_config()
-LOGGER = _init_logger()
-
-led_controller = LEDController(logger=LOGGER)
-led_controller._save_last_animation(Color_Wipe(None, 255, 135, 231))
-led_controller._load_last_animation()
+    return RGBW(red, green, blue, white)

@@ -1,5 +1,6 @@
 import threading
 import time
+import json
 from logging import Logger
 from rpi_ws281x import *
 from led.animations.startAnimations import *
@@ -8,6 +9,7 @@ from led.animations.customAnimations import *
 from led.animations.specialAnimations import *
 
 OFFLINE_ERROR = "The LED-Strip is turned OFF!"
+CACHE_FILE = "last_animation_cache.json"
 
 class LEDController():
     def __init__(self, logger: Logger, strip_config, sunset_config):

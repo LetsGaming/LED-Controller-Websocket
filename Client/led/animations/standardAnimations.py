@@ -1,6 +1,6 @@
 import random
 import time
-from led.utils import *
+from utils.utils import *
 
 class Rainbow_Cycle(Animation):
     """Draw rainbow that uniformly distributes itself across all pixels."""
