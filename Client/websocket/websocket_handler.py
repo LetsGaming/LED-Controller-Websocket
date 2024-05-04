@@ -4,7 +4,7 @@ import websockets
 from logging import Logger
 from led.controller import LEDController, OFFLINE_ERROR
 
-SAVE_PATH = "saved_animation.json"
+SAVE_PATH = "../saved_animation.json"
 
 class WebSocketHandlerClient:
     """
@@ -223,7 +223,7 @@ class WebSocketHandlerClient:
             self.logger.error('Unknown animation: %s', animation_name)
             return {'status': 'error', 'message': 'Unknown animation'}
         
-        self._save_animation_to_file({'animation_name': animation_name})
+        self._save_animation_to_file({'animation_name': animation_name}, 'standard')
         return self.standard_animations[animation_name]()
 
     def start_custom_animation(self, **data):
@@ -259,13 +259,26 @@ class WebSocketHandlerClient:
         try:
             with open(SAVE_PATH, 'r') as f:
                 data = json.load(f)
-                animation_type = data['type']
-                data.remove('type')
-                if animation_type == 'standard':
-                    self.start_standard_animation(data)
-                elif animation_type == 'custom':
-                    self.start_custom_animation(data)
-                elif animation_type == 'special':
-                    self.start_special_animation(data)
+                if not data:
+                    return
+                
+                self.__handle_loaded_data(data)
+                    
         except FileNotFoundError:
             pass
+    
+    def __handle_loaded_data(self, data):
+        self.led_controller.set_online_state(True)
+                
+        animation_type = data['type']
+        if not animation_type:
+            self.logger.error('Missing animation type when handling loaded data')
+        data.remove('type')
+                
+        if animation_type == 'standard':
+            animation_name = data['animation_name']
+            self.start_standard_animation(animation_name)
+        elif animation_type == 'custom':
+            self.start_custom_animation(data)
+        elif animation_type == 'special':
+            self.start_special_animation(data)
