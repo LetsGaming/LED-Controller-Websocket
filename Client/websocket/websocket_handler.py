@@ -280,6 +280,6 @@ class WebSocketHandlerClient:
             animation_name = data['animation_name']
             self.start_standard_animation(animation_name)
         elif animation_type == 'custom':
-            self.start_custom_animation(data)
+            self.start_custom_animation(**data)
         elif animation_type == 'special':
-            self.start_special_animation(data)
+            self.start_special_animation(**data)
