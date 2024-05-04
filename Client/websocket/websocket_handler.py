@@ -250,6 +250,7 @@ class WebSocketHandlerClient:
         return self.special_animations[animation_name](**args)
     
     def _save_animation_to_file(self, animation_data: dict, type: str):
+        self.logger.info("Saving animation to json")
         data = animation_data
         data['type'] = type
         with open(SAVE_PATH, 'w') as f:
