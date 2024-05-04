@@ -274,7 +274,7 @@ class WebSocketHandlerClient:
         animation_type = data['type']
         if not animation_type:
             self.logger.error('Missing animation type when handling loaded data')
-        data.remove('type')
+        del data['type']
                 
         if animation_type == 'standard':
             animation_name = data['animation_name']
