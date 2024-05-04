@@ -1,22 +1,11 @@
 import os
 import json
-import asyncio 
-import logging
+import asyncio
 import argparse
 from led.controller import LEDController
 from websocket.websocket_handler import WebSocketHandlerClient
 
 from utils.logger import LOGGER
-
-def _init_logger():
-    logging.basicConfig(
-    level=logging.INFO,  # Set the desired logging level
-    format="%(asctime)s [%(levelname)s] %(message)s",
-    datefmt="%Y-%m-%d %H:%M:%S",
-    )
-
-    # Create a logger instance
-    return logging.getLogger(__name__)
 
 def load_config():
     """

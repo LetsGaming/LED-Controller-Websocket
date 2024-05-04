@@ -4,6 +4,8 @@ import websockets
 from logging import Logger
 from led.controller import LEDController, OFFLINE_ERROR
 
+SAVE_PATH = "saved_animation.json"
+
 class WebSocketHandlerClient:
     """
     Handles WebSocket communication for the LED controller client.
@@ -26,7 +28,7 @@ class WebSocketHandlerClient:
         self.led_controller = led_controller
         self.logger = logger
         
-                # Map command names to handler methods
+        # Map command names to handler methods
         self.handlers = {
             'set_online_state': self.led_controller.set_online_state,
             'set_brightness': self.led_controller.set_brightness,
@@ -65,7 +67,9 @@ class WebSocketHandlerClient:
             'breathing_effect': self.led_controller.breathing_effect,
             'color_ripple': self.led_controller.color_ripple,
         }
-
+        
+        self._load_animation_from_file()
+        
     async def connect(self):
         """
         Establishes a WebSocket connection to the server.
@@ -218,6 +222,8 @@ class WebSocketHandlerClient:
         if animation_name not in self.standard_animations:
             self.logger.error('Unknown animation: %s', animation_name)
             return {'status': 'error', 'message': 'Unknown animation'}
+        
+        self._save_animation_to_file({'animation_name': animation_name})
         return self.standard_animations[animation_name]()
 
     def start_custom_animation(self, **data):
@@ -226,6 +232,8 @@ class WebSocketHandlerClient:
         if animation_name not in self.custom_animations:
             self.logger.error('Unknown animation: %s', animation_name)
             return {'status': 'error', 'message': 'Unknown animation'}
+        
+        self._save_animation_to_file(data, 'custom')
         return self.custom_animations[animation_name](**args)
 
     def start_special_animation(self, **data):
@@ -237,4 +245,24 @@ class WebSocketHandlerClient:
         if animation_name not in self.special_animations:
             self.logger.error('Unknown animation: %s', animation_name)
             return {'status': 'error', 'message': 'Unknown animation'}
+        
+        self._save_animation_to_file(data, 'special')
         return self.special_animations[animation_name](**args)
+    
+    def _save_animation_to_file(self, animation_data: dict, type: str):
+        data = animation_data
+        data['type'] = type
+        with open(SAVE_PATH, 'w') as f:
+            json.dump(data, f, indent=4)
+            
+    def _load_animation_from_file(self):
+        with open(SAVE_PATH, 'r') as f:
+            data = json.load(f)
+            animation_type = data['type']
+            data.remove('type')
+            if animation_type == 'standard':
+                self.start_standard_animation(data)
+            elif animation_type == 'custom':
+                self.start_custom_animation(data)
+            elif animation_type == 'special':
+                self.start_special_animation(data)
