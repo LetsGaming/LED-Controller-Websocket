@@ -1,10 +1,11 @@
 import asyncio
 import json
+import os
 import websockets
 from logging import Logger
 from led.controller import LEDController, OFFLINE_ERROR
 
-SAVE_PATH = "../saved_animation.json"
+SAVE_PATH =  os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'saved_animation.json')
 
 class WebSocketHandlerClient:
     """
