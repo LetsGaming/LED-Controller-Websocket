@@ -1,4 +1,4 @@
-start_animations = {
+static_animations = {
     'white': {
         'name': 'White',
         'animation_name': 'white',

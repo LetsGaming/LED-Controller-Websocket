@@ -33,15 +33,19 @@ class WebSocketHandlerClient:
         self.handlers = {
             'set_online_state': self.led_controller.set_online_state,
             'set_brightness': self.led_controller.set_brightness,
-            'set_white': self.led_controller.set_white,
-            'fill_color': self.led_controller.fill_color,
-            'custom_fill': self.led_controller.custom_fill,
+            'start_static_animation': self.start_static_animation,
             'start_standard_animation': self.start_standard_animation,
             'start_custom_animation': self.start_custom_animation,
             'start_special_animation': self.start_special_animation
         }
 
         # Map standard animation names to methods
+        self.static_animations = {
+            'set_white': self.led_controller.set_white,
+            'fill_color': self.led_controller.fill_color,
+            'custom_fill': self.led_controller.custom_fill,
+        }
+        
         self.standard_animations = {
             'rainbow_cycle': self.led_controller.rainbow_cycle,
             'rainbow_comet': self.led_controller.rainbow_comet,
@@ -219,6 +223,16 @@ class WebSocketHandlerClient:
             self.logger.info('Request completed successfully')
             return {'status': 'success', 'message': 'request completed', 'data': strip_response}
 
+    def start_static_animation(self, **data):
+        animation_name = data['animation_name']
+        args = data['args']
+        if animation_name not in self.static_animations:
+            self.logger.error('Unknown animation: %s', animation_name)
+            return {'status': 'error', 'message': 'Unknown animation'}
+        
+        self._save_animation_to_file(data, 'start')
+        return self.static_animations[animation_name](**args)
+    
     def start_standard_animation(self, animation_name):
         if animation_name not in self.standard_animations:
             self.logger.error('Unknown animation: %s', animation_name)
@@ -254,6 +268,7 @@ class WebSocketHandlerClient:
         self.logger.info("Saving animation to json")
         data = animation_data
         data['type'] = type
+        data['brightness'] = self.led_controller.get_brightness()
         with open(SAVE_PATH, 'w') as f:
             json.dump(data, f, indent=4)
             
@@ -276,7 +291,11 @@ class WebSocketHandlerClient:
         if not animation_type:
             self.logger.error('Missing animation type when handling loaded data')
         del data['type']
-                
+        
+        self.led_controller.set_brightness(data['brightness'])
+        del data['brightness']
+        
+        self.logger.info('Starting animation: %s', animation_type)
         if animation_type == 'standard':
             animation_name = data['animation_name']
             self.start_standard_animation(animation_name)

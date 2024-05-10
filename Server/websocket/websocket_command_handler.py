@@ -1,4 +1,4 @@
-from websocket.commands import Command, CommandType, RequestType, RGBValues
+from websocket.commands import Command, CommandType, RequestType
 
 class WebSocketCommandHandler:
     def __init__(self, send_message):
@@ -20,15 +20,9 @@ class WebSocketCommandHandler:
     async def set_brightness(self, sid, brightness):
         await self._send_command(sid, CommandType.SET_BRIGHTNESS, animation_data={'brightness': brightness})
 
-    async def set_white(self, sid):
-        await self._send_command(sid, CommandType.SET_WHITE)
-
-    async def fill_color(self, sid, red, green, blue):
-        await self._send_command(sid, CommandType.FILL_COLOR, rgb_data=RGBValues(red, green, blue))
-
-    async def custom_fill(self, sid, red, green, blue, percentage):
-        await self._send_command(sid, CommandType.CUSTOM_FILL, rgb_data=RGBValues(red, green, blue), animation_data={'percentage': percentage})
-
+    async def start_static_animation(self, sid, animation_name, request_data):
+        await self._send_command(sid, CommandType.START_START_ANIMATION, animation_data={'animation_name': animation_name, 'args': request_data})
+    
     async def start_standard_animation(self, sid, animation_name):
         await self._send_command(sid, CommandType.START_STANDARD_ANIMATION, animation_data={'animation_name': animation_name})
 

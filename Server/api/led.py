@@ -2,7 +2,7 @@ import asyncio
 import threading
 import time
 from flask import Blueprint, jsonify, request, make_response, Response, abort
-from api.config import start_animations, standard_animations, custom_animations, special_animations
+from api.config import static_animations, standard_animations, custom_animations, special_animations
 from websocket.websocket_server import WebSocketServer
 
 # Global Constants
@@ -165,7 +165,7 @@ async def start_animation_for_all(animation_name):
         tuple: Tuple containing JSON response and HTTP status code.
     """
     animation_mapping = {
-        'start': start_animations,
+        'static': static_animations,
         'standard': standard_animations,
         'custom': custom_animations,
         'special': special_animations
@@ -186,16 +186,8 @@ async def start_animation_for_all(animation_name):
 
     tasks = []
     for controller_id in connected_clients:
-        if animation_type == 'start':
-            if animation_name == 'set_white':
-                tasks.append(websocket_handler.set_white(controller_id))
-            elif animation_name == 'fill_color':
-                tasks.append(websocket_handler.fill_color(controller_id, **request.json))
-            elif animation_name == 'custom_fill':
-                tasks.append(websocket_handler.custom_fill(controller_id, **request.json))
-        else:
-            start_animation_func = getattr(websocket_handler, f"start_{animation_type}_animation")
-            tasks.append(start_animation_func(controller_id, animation_name, request.json))
+        start_animation_func = getattr(websocket_handler, f"start_{animation_type}_animation")
+        tasks.append(start_animation_func(controller_id, animation_name, request.json))
 
     await asyncio.gather(*tasks)
     return jsonify(message="Animation started for all connected clients"), 200
@@ -212,7 +204,7 @@ async def set_white(controller_id):
         tuple: Tuple containing JSON response and HTTP status code.
     """
     _check_controller_id_exists(controller_id)
-    await websocket_handler.set_white(controller_id)
+    await websocket_handler.start_static_animation(controller_id, 'white')
     flask_response = make_response(jsonify(message="Command sent"), 200)
     await _process_response(controller_id, flask_response)
     return flask_response 
@@ -224,7 +216,7 @@ async def fill_color(controller_id):
     
     red, green, blue = data.get('red'), data.get('green'), data.get('blue')
     
-    await websocket_handler.fill_color(controller_id, red, green, blue)
+    await websocket_handler.start_static_animation(controller_id, 'custom_color', request_data={'red': red, 'green': green, 'blue': blue} )
     
     flask_response = make_response(jsonify(message="Command sent"), 200)
     await _process_response(controller_id, flask_response)
@@ -244,8 +236,10 @@ async def custom_fill(controller_id):
     """
     _check_controller_id_exists(controller_id)
     data = request.get_json()
+    
     red, green, blue, percentage = data.get('red'), data.get('green'), data.get('blue'), data.get('percentage')
-    await websocket_handler.custom_fill(controller_id, red, green, blue, percentage)
+    await websocket_handler.start_static_animation(controller_id, 'custom_color', request_data={'red': red, 'green': green, 'blue': blue, 'percentage': percentage})
+    
     flask_response = make_response(jsonify(message="Command sent"), 200)
     await _process_response(controller_id, flask_response)
     return flask_response
@@ -328,15 +322,15 @@ async def start_special_animation(controller_id, animation_name):
         return jsonify(message='Invalid animation name.'), 400
 
 # Animation information endpoints
-@led_api.route('/led/animations/start', methods=['GET'])
-def get_start_animations():
+@led_api.route('/led/animations/static', methods=['GET'])
+def get_static_animations():
     """
     Get the list of start animations.
 
     Returns:
         tuple: Tuple containing JSON response and HTTP status code.
     """
-    return jsonify(start_animations)
+    return jsonify(static_animations)
 
 @led_api.route('/led/animations/standard', methods=['GET'])
 def get_standard_animations():
