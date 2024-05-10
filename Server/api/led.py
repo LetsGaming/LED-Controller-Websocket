@@ -153,6 +153,53 @@ async def set_brightness(controller_id):
     await _process_response(controller_id, flask_response)
     return flask_response
 
+@led_api.route('/led/all/<string:animation_name>', methods=['POST'])
+async def start_animation_for_all(animation_name):
+    """
+    Start a certain animation for all connected clients.
+
+    Args:
+        animation_name (str): Name of the animation.
+
+    Returns:
+        tuple: Tuple containing JSON response and HTTP status code.
+    """
+    animation_mapping = {
+        'start': start_animations,
+        'standard': standard_animations,
+        'custom': custom_animations,
+        'special': special_animations
+    }
+
+    animation_type = None
+    for anim_type, anim_set in animation_mapping.items():
+        if animation_name in anim_set:
+            animation_type = anim_type
+            break
+
+    if not animation_type:
+        return jsonify(message='Invalid animation name.'), 400
+
+    connected_clients = websocket_server.get_connected_clients()
+    if not connected_clients:
+        return jsonify(message="No clients connected."), 200
+
+    tasks = []
+    for controller_id in connected_clients:
+        if animation_type == 'start':
+            if animation_name == 'set_white':
+                tasks.append(websocket_handler.set_white(controller_id))
+            elif animation_name == 'fill_color':
+                tasks.append(websocket_handler.fill_color(controller_id, **request.json))
+            elif animation_name == 'custom_fill':
+                tasks.append(websocket_handler.custom_fill(controller_id, **request.json))
+        else:
+            start_animation_func = getattr(websocket_handler, f"start_{animation_type}_animation")
+            tasks.append(start_animation_func(controller_id, animation_name, request.json))
+
+    await asyncio.gather(*tasks)
+    return jsonify(message="Animation started for all connected clients"), 200
+
 @led_api.route('/led/white/<int:controller_id>', methods=['POST'])
 async def set_white(controller_id):
     """
@@ -174,17 +221,13 @@ async def set_white(controller_id):
 async def fill_color(controller_id):
     _check_controller_id_exists(controller_id)
     data = request.get_json()
-    print("fill request data: ", data)
     
     red, green, blue = data.get('red'), data.get('green'), data.get('blue')
-    print("RGB values: ", red, green, blue)  # Add this line for debugging
     
     await websocket_handler.fill_color(controller_id, red, green, blue)
     
     flask_response = make_response(jsonify(message="Command sent"), 200)
     await _process_response(controller_id, flask_response)
-    
-    print("Response sent")  # Add this line for debugging
     
     return flask_response
 

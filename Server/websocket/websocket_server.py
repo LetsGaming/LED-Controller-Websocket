@@ -18,7 +18,7 @@ class WebSocketServer:
         try:
             async with serve(self.__handle_connection, host, self.port, ping_interval=None) as server:
                 self.server = server
-                LOGGER.info(f"WebSocket server started at {'all possible interfaces and port {self.port}' if host == '0.0.0.0' else f'ws://{host}:{self.port}'}")
+                LOGGER.info(f"WebSocket server started at {f'all possible interfaces and port {self.port}' if host == '0.0.0.0' else f'ws://{host}:{self.port}'}")
                 await asyncio.Future()
         except Exception as e:
             LOGGER.error(f"WebSocket server initialization error: {e}")
@@ -42,7 +42,7 @@ class WebSocketServer:
                 LOGGER.info(f"Message from client {sid}: {data}")
                 await self.handle_response(sid, data)
         except websockets.exceptions.ConnectionClosed:
-            pass
+            await self.__handle_disconnection(sid)
         finally:
             await self.__handle_disconnection(sid)
 
@@ -51,6 +51,9 @@ class WebSocketServer:
         if client_data:
             client_name = client_data['name']
             LOGGER.info(f"Client {client_name} ({sid}) disconnected")
+            websocket = next((ws for ws in self.server.websockets if id(ws) == sid), None)
+            if websocket:
+                await websocket.close()
 
     async def handle_response(self, sid, data):
         self.callback(sid, data)
