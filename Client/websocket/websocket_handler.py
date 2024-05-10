@@ -5,6 +5,8 @@ import websockets
 from logging import Logger
 from led.controller import LEDController, OFFLINE_ERROR
 
+from websocket.responses import *
+
 SAVE_PATH =  os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'saved_animation.json')
 
 class WebSocketHandlerClient:
@@ -187,16 +189,16 @@ class WebSocketHandlerClient:
         # Check if the request name is valid
         if request_name not in handlers:
             self.logger.error('Unknown request: %s', request_name)
-            return {'status': 'error', 'message': 'Unknown request'}
+            return RequestResponses.create_error_response(Errors.UNKNOWN_REQUEST)
 
         # Call the appropriate handler and return its response
         strip_response = handlers[request_name]()
         if strip_response == OFFLINE_ERROR:
             self.logger.error('Error: %s', strip_response)
-            return {'status': 'error', 'message': strip_response}
+            return RequestResponses.create_error_response(Errors.GENERAL_ERROR, strip_response)
         else:
             self.logger.info('Request completed successfully')
-            return {'status': 'success', 'message': 'request completed', 'data': strip_response}
+            return RequestResponses.create_success_response(Successes.REQUEST_SUCCESS, strip_response)
 
     def dispatch_command(self, command_name, args):
         """
@@ -212,31 +214,36 @@ class WebSocketHandlerClient:
         # Check if the command name is valid
         if command_name not in self.handlers:
             self.logger.error('Unknown command: %s', command_name)
-            return {'status': 'error', 'message': 'Unknown command'}
+            return CommandResponses.create_error_response(Errors.UNKNOWN_COMMAND)
 
         # Call the appropriate handler and return its response
         strip_response = self.handlers[command_name](**args)
         if strip_response == OFFLINE_ERROR:
             self.logger.error('Error: %s', strip_response)
-            return {'status': 'error', 'message': strip_response}
+            return CommandResponses.create_error_response(Errors.GENERAL_ERROR, strip_response)
         else:
             self.logger.info('Request completed successfully')
-            return {'status': 'success', 'message': 'request completed', 'data': strip_response}
-
+            return CommandResponses.create_success_response(Successes.REQUEST_SUCCESS, strip_response)
+    
+    def _check_animation_name(self, name, animations):
+        if not name:
+            self.logger.error('No animation name provided')
+            return CommandResponses.create_error_response(Errors.MISSING_ARGUMENT, 'animation_name')
+        
+        if name not in animations:
+            self.logger.error('Unknown animation: %s', name)
+            return CommandResponses.create_error_response(Errors.UNKNOWN_ANIMATION)
+    
     def start_static_animation(self, **data):
         animation_name = data['animation_name']
         args = data['args']
-        if animation_name not in self.static_animations:
-            self.logger.error('Unknown animation: %s', animation_name)
-            return {'status': 'error', 'message': 'Unknown animation'}
-        
+        self._check_animation_name(animation_name, self.static_animations)
+
         self._save_animation_to_file(data, 'start')
         return self.static_animations[animation_name](**args)
     
     def start_standard_animation(self, animation_name):
-        if animation_name not in self.standard_animations:
-            self.logger.error('Unknown animation: %s', animation_name)
-            return {'status': 'error', 'message': 'Unknown animation'}
+        self._check_animation_name(animation_name, self.standard_animations)
         
         self._save_animation_to_file({'animation_name': animation_name}, 'standard')
         return self.standard_animations[animation_name]()
@@ -244,9 +251,7 @@ class WebSocketHandlerClient:
     def start_custom_animation(self, **data):
         animation_name = data['animation_name']
         args = data['args']
-        if animation_name not in self.custom_animations:
-            self.logger.error('Unknown animation: %s', animation_name)
-            return {'status': 'error', 'message': 'Unknown animation'}
+        self._check_animation_name(animation_name, self.custom_animations)
         
         self._save_animation_to_file(data, 'custom')
         return self.custom_animations[animation_name](**args)
@@ -254,16 +259,11 @@ class WebSocketHandlerClient:
     def start_special_animation(self, **data):
         animation_name = data['animation_name']
         args = data['args']
-        if not animation_name:
-            self.logger.error('Missing animation_name')
-            return {'status': 'error', 'message': 'Missing animation_name'}
-        if animation_name not in self.special_animations:
-            self.logger.error('Unknown animation: %s', animation_name)
-            return {'status': 'error', 'message': 'Unknown animation'}
+        self._check_animation_name(animation_name, self.special_animations)
         
         self._save_animation_to_file(data, 'special')
         return self.special_animations[animation_name](**args)
-    
+        
     def _save_animation_to_file(self, animation_data: dict, type: str):
         self.logger.info("Saving animation to json")
         data = animation_data
