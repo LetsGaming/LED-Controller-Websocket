@@ -182,8 +182,8 @@ export default defineComponent({
     async startAnimation(category: string, animation: string, args = {}) {
       try {
         let endpoint = `/led/animations/${category}/${animation}/${this.selectedControllerId}`;
-        if (category == "start") {
-          endpoint = `/led/${animation}/${this.selectedControllerId}`;
+        if (this.selectedControllerId == 'all') {
+          endpoint = `/led/all/${animation}`;
         }
 
         const method = args ? "POST" : "GET";

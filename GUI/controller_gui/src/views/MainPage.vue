@@ -18,17 +18,23 @@
           </IonButton>
         </IonCardContent>
       </IonCard>
-      <IonList v-if="connectedControllers.length > 0" class="align-middle">
-        <IonChip
-          v-for="(controller, index) in connectedControllers"
-          :key="index"
-          @click="clickController(controller.id)"
-          style="justify-content: center; width: 90%"
-        >
-          {{ controller.name }}
+      <IonList class="align-middle">
+        <IonChip @click="clickController('all')" class="controllerChip">
+          All
         </IonChip>
+        <template v-if="connectedControllers.length > 0">
+          <IonChip
+            v-for="(controller, index) in connectedControllers"
+            :key="index"
+            @click="clickController(controller.id)"
+            #
+            class="controllerChip"
+          >
+            {{ controller.name }}
+          </IonChip>
+        </template>
+        <p v-else>No connected controllers</p>
       </IonList>
-      <p v-else>No connected controllers</p>
     </ion-content>
   </ion-menu>
   <ion-page id="main-content">
@@ -79,7 +85,7 @@ import { fetchJson } from "@/provider/Utils";
 
 interface Controller {
   name: string;
-  id: number;
+  id: string;
 }
 
 export default defineComponent({
@@ -110,7 +116,7 @@ export default defineComponent({
     };
   },
   methods: {
-    clickController(controllerId: number) {
+    clickController(controllerId: string) {
       // Open LedControlPanel with the selected controller's ID
       this.$router.push({ name: "LedControlPanel", params: { controllerId } });
     },
@@ -124,10 +130,12 @@ export default defineComponent({
 
         const connectedControllersArray = Object.values(response_data.data);
 
-        this.connectedControllers = connectedControllersArray.map((item: any) => ({
-          id: item.id,
-          name: item.name,
-        }));
+        this.connectedControllers = connectedControllersArray.map(
+          (item: any) => ({
+            id: item.id,
+            name: item.name,
+          })
+        );
       } catch (error) {
         console.error("Error getting connected controllers:", error);
       }
@@ -135,3 +143,9 @@ export default defineComponent({
   },
 });
 </script>
+<style>
+.controllerChip {
+  justify-content: center;
+  width: 90%;
+}
+</style>
