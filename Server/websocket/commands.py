@@ -45,7 +45,7 @@ class CommandType(Enum):
     SET_ONLINE_STATE = 'set_online_state'
     SET_BRIGHTNESS = 'set_brightness'
     
-    START_START_ANIMATION = 'start_start_animation'
+    START_STATIC_ANIMATION = 'start_static_animation'
     START_STANDARD_ANIMATION = 'start_standard_animation'
     START_CUSTOM_ANIMATION = 'start_custom_animation'
     START_SPECIAL_ANIMATION = 'start_special_animation'

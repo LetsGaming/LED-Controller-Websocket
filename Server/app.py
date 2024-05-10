@@ -4,6 +4,8 @@ import importlib
 import os
 import json
 
+from utils.logger import LOGGER
+
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 def load_allowed_origins():
@@ -42,4 +44,7 @@ def favicon():
     return send_file(path_or_file=os.path.join(ROOT_DIR, "favicon.ico"), mimetype='image/vnd.microsoft.icon')
 
 if __name__ == '__main__':
-    app.run(host="0.0.0.0", port=5000)
+    try:
+        app.run(host="0.0.0.0", port=5000)
+    except Exception as e:
+        LOGGER.error(f"An Error occoured: {e}")

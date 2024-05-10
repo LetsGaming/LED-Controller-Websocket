@@ -21,7 +21,7 @@ class WebSocketCommandHandler:
         await self._send_command(sid, CommandType.SET_BRIGHTNESS, animation_data={'brightness': brightness})
 
     async def start_static_animation(self, sid, animation_name, request_data):
-        await self._send_command(sid, CommandType.START_START_ANIMATION, animation_data={'animation_name': animation_name, 'args': request_data})
+        await self._send_command(sid, CommandType.START_STATIC_ANIMATION, animation_data={'animation_name': animation_name, 'args': request_data})
     
     async def start_standard_animation(self, sid, animation_name):
         await self._send_command(sid, CommandType.START_STANDARD_ANIMATION, animation_data={'animation_name': animation_name})
