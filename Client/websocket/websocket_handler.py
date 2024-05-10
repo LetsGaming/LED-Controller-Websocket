@@ -41,8 +41,8 @@ class WebSocketHandlerClient:
 
         # Map standard animation names to methods
         self.static_animations = {
-            'set_white': self.led_controller.set_white,
-            'fill_color': self.led_controller.fill_color,
+            'white': self.led_controller.set_white,
+            'custom_color': self.led_controller.fill_color,
             'custom_fill': self.led_controller.custom_fill,
         }
         
