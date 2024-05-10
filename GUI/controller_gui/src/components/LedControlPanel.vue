@@ -163,17 +163,17 @@ export default defineComponent({
     handleStartAnimation(data: StartAnimationEvent) {
       const animationCategory = data.name.split(" ")[0];
       switch (animationCategory) {
-        case "Start":
-          this.startAnimation("start", data.animation, data.args);
+        case "Static":
+          this.startAnimation(animationCategory.toLowerCase(), data.animation, data.args);
           break;
         case "Standard":
-          this.startAnimation("standard", data.animation, {});
+          this.startAnimation(animationCategory.toLowerCase(), data.animation, {});
           break;
         case "Custom":
-          this.startAnimation("custom", data.animation, data.args);
+          this.startAnimation(animationCategory.toLowerCase(), data.animation, data.args);
           break;
         case "Special":
-          this.startAnimation("special", data.animation, data.args);
+          this.startAnimation(animationCategory.toLowerCase(), data.animation, data.args);
           break;
         default:
           break;
@@ -205,7 +205,7 @@ export default defineComponent({
     },
     async getAnimations() {
       try {
-        const categories = ["start", "standard", "custom", "special"];
+        const categories = ["static", "standard", "custom", "special"];
         await Promise.all(
           categories.map(async (category: string) => {
             const response = await fetchJson(
