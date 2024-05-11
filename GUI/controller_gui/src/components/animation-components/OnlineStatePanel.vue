@@ -47,8 +47,9 @@ export default defineComponent({
   methods: {
     async getOnlineState() {
       try {
+        const endpoint = this.selectedControllerId == 'all' ? '/led/all/get_online_state' :  `/led/get_online_state/${this.selectedControllerId}`;
         const response = await fetchJson(
-          `/led/get_online_state/${this.selectedControllerId}`,
+          endpoint,
           undefined,
           false
         );
@@ -59,8 +60,9 @@ export default defineComponent({
     },
     async setOnlineState(online: boolean) {
       try {
+        const endpoint = this.selectedControllerId == 'all' ? `/led/all/set_online_state` : `/led/set_online_state/${this.selectedControllerId}`;
         const data = await fetchJson(
-          `/led/set_online_state/${this.selectedControllerId}`,
+          endpoint,
           {
             method: "POST",
             headers: {

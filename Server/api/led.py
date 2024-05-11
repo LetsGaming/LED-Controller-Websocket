@@ -52,7 +52,7 @@ def _manipulate_response(flask_response: Response, response_data):
     flask_response.data = jsonify(message=response_data).get_data()
     flask_response.status_code = 200 if response_data.get('status') == 'success' else 500
 
-async def _await_response_with_timeout(controller_id, timeout=30, check_interval=1, on_timeout_callback=None):
+async def _await_response_with_timeout(controller_id, timeout=15, check_interval=1, on_timeout_callback=None):
     awaited_response = _add_expected_websocket_response(controller_id)
 
     start_time = time.time()
@@ -74,7 +74,7 @@ async def _process_response(controller_id, flask_response):
         response_data = EXPECTED_WEBSOCKET_RESPONSES.get(controller_id)['response_data']
         _manipulate_response(flask_response, response_data)
     else:
-        abort(400, description=f'Response timeout for Controller ID {controller_id}. No response received.')
+        abort(400, description=f'Response timeout for Controller ID: {controller_id}. No response received.')
 
 # General LED information endpoints
 @led_api.route("/led/connected_controller", methods=['GET'])
@@ -164,12 +164,29 @@ async def start_animation_for_all(animation_name):
     Returns:
         tuple: Tuple containing JSON response and HTTP status code.
     """
+    option_mapping = {
+        'set_online': set_online_state,
+        'set_brightness': set_brightness
+    }
+
     animation_mapping = {
         'static': static_animations,
         'standard': standard_animations,
         'custom': custom_animations,
         'special': special_animations
     }
+
+    if animation_name.startswith("get"):
+        return jsonify(message="Getting data from all controller at once, not yet implemented"), 501
+
+    connected_clients = websocket_server.get_connected_clients()
+    
+    if not connected_clients:
+        return jsonify(message="No clients connected."), 200
+    
+    if animation_name in option_mapping:
+        func = option_mapping[animation_name]
+        return await _start_func_for_all(func, connected_clients, request)
 
     animation_type = None
     for anim_type, anim_set in animation_mapping.items():
@@ -180,17 +197,19 @@ async def start_animation_for_all(animation_name):
     if not animation_type:
         return jsonify(message='Invalid animation name.'), 400
 
-    connected_clients = websocket_server.get_connected_clients()
-    if not connected_clients:
+    start_animation_func = getattr(websocket_handler, f"start_{animation_type}_animation")
+    return await _start_func_for_all(start_animation_func, connected_clients, request)
+
+async def _start_func_for_all(func, clients, request):
+    if not clients:
         return jsonify(message="No clients connected."), 200
 
     tasks = []
-    for controller_id in connected_clients:
-        start_animation_func = getattr(websocket_handler, f"start_{animation_type}_animation")
-        tasks.append(start_animation_func(controller_id, animation_name, request.json))
+    for controller_id in clients:
+        tasks.append(func(controller_id, request.json))
 
     await asyncio.gather(*tasks)
-    return jsonify(message="Animation started for all connected clients"), 200
+    return jsonify(message="Function called for all connected clients"), 200
 
 @led_api.route('/led/white/<int:controller_id>', methods=['POST'])
 async def set_white(controller_id):
@@ -330,7 +349,7 @@ def get_static_animations():
     Returns:
         tuple: Tuple containing JSON response and HTTP status code.
     """
-    return jsonify(static_animations)
+    return jsonify(static_animations), 200
 
 @led_api.route('/led/animations/standard', methods=['GET'])
 def get_standard_animations():

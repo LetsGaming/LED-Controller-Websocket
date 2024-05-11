@@ -74,8 +74,10 @@ export default defineComponent({
     },
     async getBrightness() {
       try {
+        const endpoint = this.selectedControllerId == 'all' ?  '/led/all/get_brightness' : `/led/get_brightness/${this.selectedControllerId}`;
+
         const data = await fetchJson(
-          `/led/get_brightness/${this.selectedControllerId}`,
+          endpoint,
           undefined,
           false
         );
@@ -86,8 +88,10 @@ export default defineComponent({
     },
     async setBrightness() {
       try {
+        const endpoint = this.selectedControllerId == 'all' ? 'led/all/set_brightness' : `led/set_brightness/${this.selectedControllerId}`;
+
         const data = await fetchJson(
-          `/led/set_brightness/${this.selectedControllerId}`,
+          endpoint,
           {
             method: "POST",
             headers: {

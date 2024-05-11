@@ -19,7 +19,7 @@
         </IonCardContent>
       </IonCard>
       <IonList class="align-middle">
-        <IonChip @click="clickController('all')" class="controllerChip">
+        <IonChip @click="openAll()" class="controllerChip">
           All
         </IonChip>
         <template v-if="connectedControllers.length > 0">
@@ -116,6 +116,9 @@ export default defineComponent({
     };
   },
   methods: {
+    openAll() {
+      this.$router.push({ name: "All" });
+    },
     clickController(controllerId: string) {
       // Open LedControlPanel with the selected controller's ID
       this.$router.push({ name: "LedControlPanel", params: { controllerId } });

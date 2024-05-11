@@ -135,7 +135,7 @@ class LEDController():
         else:
             return OFFLINE_ERROR
 
-    # Start Animations
+    # Static Animations
     def set_white(self):
         return self._handle_animation(SetWhite(self.strip))
 

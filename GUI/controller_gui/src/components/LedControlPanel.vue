@@ -128,8 +128,8 @@ export default defineComponent({
   setup() {
     return { settings };
   },
-  mounted() {
-    this.initializeComponent();
+  async mounted() {
+    await this.initializeComponent();
   },
   data() {
     return {
@@ -147,7 +147,7 @@ export default defineComponent({
       this.selectedSegment = event.target.value;
     },
     async initializeComponent() {
-      this.getAnimations();
+      await this.getAnimations();
       const route = useRoute();
       const { controllerId } = route.params;
       this.selectedControllerId = controllerId;
@@ -160,20 +160,36 @@ export default defineComponent({
       this.toastMessage = message;
       this.isToastVisible = true;
     },
-    handleStartAnimation(data: StartAnimationEvent) {
+    async handleStartAnimation(data: StartAnimationEvent) {
       const animationCategory = data.name.split(" ")[0];
       switch (animationCategory) {
         case "Static":
-          this.startAnimation(animationCategory.toLowerCase(), data.animation, data.args);
+          await this.startAnimation(
+            animationCategory.toLowerCase(),
+            data.animation,
+            data.args
+          );
           break;
         case "Standard":
-          this.startAnimation(animationCategory.toLowerCase(), data.animation, {});
+          await this.startAnimation(
+            animationCategory.toLowerCase(),
+            data.animation,
+            {}
+          );
           break;
         case "Custom":
-          this.startAnimation(animationCategory.toLowerCase(), data.animation, data.args);
+          await this.startAnimation(
+            animationCategory.toLowerCase(),
+            data.animation,
+            data.args
+          );
           break;
         case "Special":
-          this.startAnimation(animationCategory.toLowerCase(), data.animation, data.args);
+          await this.startAnimation(
+            animationCategory.toLowerCase(),
+            data.animation,
+            data.args
+          );
           break;
         default:
           break;
@@ -182,7 +198,7 @@ export default defineComponent({
     async startAnimation(category: string, animation: string, args = {}) {
       try {
         let endpoint = `/led/animations/${category}/${animation}/${this.selectedControllerId}`;
-        if (this.selectedControllerId == 'all') {
+        if (this.selectedControllerId == "all") {
           endpoint = `/led/all/${animation}`;
         }
 
