@@ -1,13 +1,12 @@
 <template>
   <IonCard class="align-middle">
     <IonCardHeader>
-      <IonCardTitle>Online State</IonCardTitle>
+      <IonCardTitle>Online State</IonCardTitle><br>
+      <IonButton @click="getOnlineState">Get</IonButton>
     </IonCardHeader>
-
-    <IonCardContent>
-      <IonButton @click="getOnlineState">Get Online State</IonButton>
-      <IonButton @click="setOnlineState(true)">Set Online</IonButton>
-      <IonButton @click="setOnlineState(false)">Set Offline</IonButton>
+    
+    <IonCardContent style="display: flex; justify-content: center; align-items: center;">
+      <IonToggle v-model="online" @ion-change="toggleOnlineState" style="padding: auto;"></IonToggle>
     </IonCardContent>
   </IonCard>
 </template>
@@ -18,13 +17,11 @@ import {
   IonCardHeader,
   IonCardTitle,
   IonCardContent,
-  IonInput,
   IonButton,
-  IonToast,
+  IonToggle,
 } from "@ionic/vue";
 
 import { defineComponent } from "vue";
-
 import { fetchJson } from "@/provider/Utils";
 
 export default defineComponent({
@@ -34,9 +31,8 @@ export default defineComponent({
     IonCardHeader,
     IonCardTitle,
     IonCardContent,
-    IonInput,
     IonButton,
-    IonToast,
+    IonToggle,
   },
   props: {
     selectedControllerId: {
@@ -44,19 +40,25 @@ export default defineComponent({
       required: true,
     },
   },
+  data() {
+    return {
+      online: false,
+    };
+  },
   methods: {
     async getOnlineState() {
       try {
         const endpoint = this.selectedControllerId == 'all' ? '/led/all/get_online_state' :  `/led/get_online_state/${this.selectedControllerId}`;
-        const response = await fetchJson(
-          endpoint,
-          undefined,
-          false
-        );
-        this.emitMessageEvent(`Online state: ${response.message.data}`);
+        const response = await fetchJson(endpoint, undefined, false);
+        this.online = response.message.data; // Update online state
+        this.emitMessageEvent(`Online state: ${this.online}`);
       } catch (error) {
         console.error("Error getting online state:", error);
       }
+    },
+    async toggleOnlineState() {
+      const newOnlineState = !this.online; // Toggle online state
+      await this.setOnlineState(newOnlineState);
     },
     async setOnlineState(online: boolean) {
       try {
@@ -72,6 +74,7 @@ export default defineComponent({
           },
           false
         );
+        this.online = online; // Update online state
         this.emitMessageEvent(data.message.message);
       } catch (error) {
         console.error("Error setting online state:", error);

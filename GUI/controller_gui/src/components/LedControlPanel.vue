@@ -147,10 +147,11 @@ export default defineComponent({
       this.selectedSegment = event.target.value;
     },
     async initializeComponent() {
-      await this.getAnimations();
       const route = useRoute();
       const { controllerId } = route.params;
       this.selectedControllerId = controllerId;
+
+      await this.getAnimations();     
     },
     clearToast() {
       this.isToastVisible = false;

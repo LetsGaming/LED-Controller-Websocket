@@ -6,7 +6,7 @@
 
     <IonCardContent>
       <IonButton @click="getBrightness" style="display: flex"
-        >Get Brightness</IonButton
+        >Get</IonButton
       >
       <div class="brightness-control">
         <IonRange
@@ -14,8 +14,9 @@
           placeholder="Enter brightness"
           :pin="true"
           :pin-formatter="pinFormatter"
+          v-model="brightnessPercentage"
         ></IonRange>
-        <IonButton @click="setBrightness">Set Brightness</IonButton>
+        <IonButton @click="setBrightness">Set</IonButton>
       </div>
     </IonCardContent>
   </IonCard>
@@ -29,13 +30,9 @@ import {
   IonCardContent,
   IonRange,
   IonButton,
-  IonToast,
-  IonRow,
-  IonCol,
 } from "@ionic/vue";
 
 import { defineComponent } from "vue";
-
 import { fetchJson } from "@/provider/Utils";
 
 export default defineComponent({
@@ -47,9 +44,6 @@ export default defineComponent({
     IonCardContent,
     IonRange,
     IonButton,
-    IonToast,
-    IonRow,
-    IonCol,
   },
   props: {
     selectedControllerId: {
@@ -65,12 +59,13 @@ export default defineComponent({
   data() {
     return {
       brightness: 0,
+      brightnessPercentage: 0
     };
   },
   methods: {
     calcBrightness(ev: any) {
-      const brightnessPercentage = ev.detail.value;
-      this.brightness = Math.round((brightnessPercentage / 100) * 255);
+      this.brightnessPercentage = ev.detail.value;
+      this.brightness = Math.round((this.brightnessPercentage / 100) * 255);
     },
     async getBrightness() {
       try {
@@ -81,7 +76,9 @@ export default defineComponent({
           undefined,
           false
         );
-        this.emitMessageEvent(`Controller brightness: ${data.message.data}`);
+        this.brightness = data.message.data; // Update brightness from server
+        this.brightnessPercentage = (this.brightness * 100) / 255;
+        this.emitMessageEvent(`Controller brightness: ${this.brightness}`);
       } catch (error) {
         console.error("Error getting brightness:", error);
       }
