@@ -44,12 +44,6 @@ standard_animations = {
         'description': 'Bounce a rainbow color back and forth across the LED strip.',
         'args': [],
     },
-    'random_bounce': {
-        'name': 'Random Bounce',
-        'animation_name': 'random_bounce',
-        'description': 'Bounce a random color back and forth across the LED strip.',
-        'args': [],
-    },
 }
 
 custom_animations = {
