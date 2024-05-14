@@ -211,59 +211,34 @@ async def _start_func_for_all(func, clients, request):
     await asyncio.gather(*tasks)
     return jsonify(message="Function called for all connected clients"), 200
 
-@led_api.route('/led/white/<int:controller_id>', methods=['POST'])
-async def set_white(controller_id):
-    """
-    Set the LED strip to white color.
-
-    Args:
-        controller_id (int): Controller ID.
-
-    Returns:
-        tuple: Tuple containing JSON response and HTTP status code.
-    """
-    _check_controller_id_exists(controller_id)
-    await websocket_handler.start_static_animation(controller_id, 'white')
-    flask_response = make_response(jsonify(message="Command sent"), 200)
-    await _process_response(controller_id, flask_response)
-    return flask_response 
-
-@led_api.route('/led/custom_color/<int:controller_id>', methods=['POST'])
-async def fill_color(controller_id):
-    _check_controller_id_exists(controller_id)
-    data = request.get_json()
-    
-    red, green, blue = data.get('red'), data.get('green'), data.get('blue')
-    
-    await websocket_handler.start_static_animation(controller_id, 'custom_color', request_data={'red': red, 'green': green, 'blue': blue} )
-    
-    flask_response = make_response(jsonify(message="Command sent"), 200)
-    await _process_response(controller_id, flask_response)
-    
-    return flask_response
-
-@led_api.route('/led/custom_fill/<int:controller_id>', methods=['POST'])
-async def custom_fill(controller_id):
-    """
-    Fill a specific percentage of the LED strip with a custom color.
-
-    Args:
-        controller_id (int): Controller ID.
-
-    Returns:
-        tuple: Tuple containing JSON response and HTTP status code.
-    """
-    _check_controller_id_exists(controller_id)
-    data = request.get_json()
-    
-    red, green, blue, percentage = data.get('red'), data.get('green'), data.get('blue'), data.get('percentage')
-    await websocket_handler.start_static_animation(controller_id, 'custom_color', request_data={'red': red, 'green': green, 'blue': blue, 'percentage': percentage})
-    
-    flask_response = make_response(jsonify(message="Command sent"), 200)
-    await _process_response(controller_id, flask_response)
-    return flask_response
-
 # Animation endpoints
+@led_api.route('/led/animation/static/<string:animation_name>/<int:controller_id>', methods=['POST'])
+async def start_static_animation(controller_id, animation_name):
+    """
+    Start a custom animation on the LED strip.
+
+    Args:
+        controller_id (int): Controller ID.
+        animation_name (str): Name of the custom animation.
+
+    Returns:
+        tuple: Tuple containing JSON response and HTTP status code.
+    """
+    _check_controller_id_exists(controller_id)
+    animation = static_animations.get(animation_name)
+    if animation:
+        args = animation['args']
+        missing_args = [arg for arg in args if arg not in request.json]
+        if missing_args:
+            return jsonify(message=f'Missing arguments: {", ".join(missing_args)}'), 400
+
+        await websocket_handler.start_static_animation(controller_id, animation_name, request.json)
+        flask_response = make_response(jsonify(message="Command sent"), 200)
+        await _process_response(controller_id, flask_response)
+        return flask_response
+    else:
+        return jsonify(message='Invalid animation name.'), 400
+
 @led_api.route('/led/animations/standard/<string:animation_name>/<int:controller_id>', methods=['POST'])
 async def start_standard_animation(controller_id, animation_name):
     """
