@@ -14,8 +14,8 @@ class WebSocketCommandHandler:
     async def get_brightness(self, sid):
         await self._send_command(sid, RequestType.GET_BRIGHTNESS)
 
-    async def set_online_state(self, sid, value):
-        await self._send_command(sid, CommandType.SET_ONLINE_STATE, animation_data={'value': value})
+    async def set_online_state(self, sid, online):
+        await self._send_command(sid, CommandType.SET_ONLINE_STATE, animation_data={'value': online})
 
     async def set_brightness(self, sid, brightness):
         await self._send_command(sid, CommandType.SET_BRIGHTNESS, animation_data={'brightness': brightness})

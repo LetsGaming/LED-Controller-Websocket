@@ -112,8 +112,8 @@ async def set_online_state(controller_id):
     """
     _check_controller_id_exists(controller_id)
     data = request.get_json()
-    value = data.get('online')
-    await websocket_handler.set_online_state(controller_id, value)
+    online = data.get('online')
+    await websocket_handler.set_online_state(controller_id, online)
     flask_response = make_response(jsonify(message="Command sent"), 200)
     await _process_response(controller_id, flask_response)
     return flask_response
