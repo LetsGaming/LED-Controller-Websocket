@@ -210,7 +210,7 @@ async def _start_func_for_all(func, clients, animation_name=None, request=None):
     tasks = []
     for controller_id in clients:
         if animation_name is not None and request is not None:
-            tasks.append(func(controller_id, animation_name, **request.json))
+            tasks.append(func(controller_id, animation_name, request.json))
         elif animation_name is not None and request is None:
             tasks.append(func(controller_id, animation_name))
         elif request is not None and animation_name is None:
