@@ -29,7 +29,7 @@ async def main(name=None):
         led_controller = LEDController(strip_config, sunset_config)
         
         wbs_config = config["websocket"]
-        wbs_handler = WebSocketHandlerClient(name, wbs_config["server_address"], wbs_config["server_port"], led_controller, LOGGER)
+        wbs_handler = WebSocketHandlerClient(name, wbs_config["server_address"], wbs_config["server_port"], led_controller)
         await wbs_handler.connect()
     except Exception as e:
         LOGGER.error(f"Error: {e}")
