@@ -85,7 +85,7 @@ export default defineComponent({
     },
     async setBrightness() {
       try {
-        const endpoint = this.selectedControllerId == 'all' ? 'led/all/set_brightness' : `led/set_brightness/${this.selectedControllerId}`;
+        const endpoint = this.selectedControllerId == 'all' ? '/led/all/set_brightness' : `/led/set_brightness/${this.selectedControllerId}`;
 
         const data = await fetchJson(
           endpoint,

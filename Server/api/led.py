@@ -186,7 +186,7 @@ async def start_animation_for_all(animation_name):
     
     if animation_name in option_mapping:
         func = option_mapping[animation_name]
-        return await _start_func_for_all(func, connected_clients, request)
+        return await _start_func_for_all(func, connected_clients, request=request)
 
     animation_type = None
     for anim_type, anim_set in animation_mapping.items():
@@ -198,15 +198,17 @@ async def start_animation_for_all(animation_name):
         return jsonify(message='Invalid animation name.'), 400
 
     start_animation_func = getattr(websocket_handler, f"start_{animation_type}_animation")
-    return await _start_func_for_all(start_animation_func, connected_clients, request)
+    if anim_type == "standard":
+        return await _start_func_for_all(start_animation_func, connected_clients, animation_name=animation_name)
+    return await _start_func_for_all(start_animation_func, connected_clients, animation_name, request)
 
-async def _start_func_for_all(func, clients, request):
+async def _start_func_for_all(func, clients, animation_name=None, request=None):
     if not clients:
         return jsonify(message="No clients connected."), 200
 
     tasks = []
     for controller_id in clients:
-        tasks.append(func(controller_id, request.json))
+        tasks.append(func(controller_id, animation_name, request.json))
 
     await asyncio.gather(*tasks)
     return jsonify(message="Function called for all connected clients"), 200
