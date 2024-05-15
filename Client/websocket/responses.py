@@ -6,9 +6,21 @@ class BaseResponse(Enum):
     Base class for error and success responses
     """
     def __init__(self, status, message, data=None):
-        self.status = status
-        self.message = message
-        self.data = data
+        self._status = status
+        self._message = message
+        self._data = data
+
+    @property
+    def status(self):
+        return self._status
+
+    @property
+    def message(self):
+        return self._message
+
+    @property
+    def data(self):
+        return self._data
 
 class Errors(Enum):
     """
@@ -31,41 +43,39 @@ class ResponseFactory:
     """
     Class for response factory
     """
-    def create_error_response(error_type: Errors, **kwargs) -> dict:
+    
+    @staticmethod
+    def create_error_response(error_type: Errors, data=None) -> dict:
         """
         Factory function to create an error response
         """
-        LOGGER.info(f"Error_type: {error_type}")
-        LOGGER.info(f"kwargs: {kwargs}")
         response = {
             'status': error_type.value[0],
             'message': error_type.value[1],
         }
-        response.update(kwargs)
+        if data:
+            response['data'] = data
         return response
 
+    @staticmethod
     def create_success_response(success_type: Successes, data=None) -> dict:
         """
         Factory function to create a success response
         """
-        LOGGER.info(f"Success_type: {success_type}")
         response = {
             'status': success_type.value[0],
-            'message': success_type.value[1],
-            'data': data
+            'message': success_type.value[1]
         }
+        if data:
+            response['data'] = data
         return response
 
 class CommandResponses(ResponseFactory):
     """
     Class for command responses
     """
-    def __init__(self):
-        super().__init__()
 
 class RequestResponses(ResponseFactory):
     """
     Class for request responses
     """
-    def __init__(self):
-        super().__init__()

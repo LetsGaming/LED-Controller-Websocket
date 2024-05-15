@@ -1,9 +1,8 @@
 import threading
 import time
-import json
 from logging import Logger
 from rpi_ws281x import *
-from led.animations.startAnimations import *
+from led.animations.staticAnimations import *
 from led.animations.standardAnimations import *
 from led.animations.customAnimations import *
 from led.animations.specialAnimations import *

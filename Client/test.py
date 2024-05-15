@@ -4,10 +4,10 @@ import os
 from datetime import datetime, timedelta
 from logging import Logger
 import time
-
 import pytz
 import requests
 
+from websocket.responses import *
 from utils.utils import Animation
 from led.animations.customAnimations import *
 
@@ -248,6 +248,8 @@ def load_config():
 config = load_config()
 LOGGER = _init_logger()
 
-led_controller = LEDController(logger=LOGGER)
-led_controller._save_last_animation(Color_Wipe(None, 255, 135, 231))
-led_controller._load_last_animation()
+response = RequestResponses.create_success_response(Successes.REQUEST_SUCCESS)
+print(f"Success response: {response}")
+
+err_res = RequestResponses.create_error_response(Errors.MISSING_ARGUMENT, {"test": "test"})
+print(f"Error response: {err_res}")
