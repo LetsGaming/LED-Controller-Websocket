@@ -209,11 +209,19 @@ async def _start_func_for_all(func, clients, animation_name=None, request=None):
 
     tasks = []
     for controller_id in clients:
-        tasks.append(func(controller_id, animation_name, request.json))
+        if animation_name is not None and request is not None:
+            tasks.append(func(controller_id, animation_name, request.json))
+        elif animation_name is not None:
+            tasks.append(func(controller_id, animation_name))
+        elif request is not None:
+            tasks.append(func(controller_id, request.json))
+        else:
+            tasks.append(func(controller_id))
 
     LOGGER.info(f"Data for all clients: func: {func} | clients: {clients} | animation_name: {animation_name} | request.json: {request.json}")
     await asyncio.gather(*tasks)
     return jsonify(message="Function called for all connected clients"), 200
+
 
 # Animation endpoints
 @led_api.route('/led/animation/static/<string:animation_name>/<int:controller_id>', methods=['POST'])
