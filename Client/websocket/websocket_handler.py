@@ -146,7 +146,7 @@ class WebSocketHandlerClient:
         """
         request_name = request_data.get('request_name')
         if not request_name:
-            response = {'status': 'error', 'message': 'request_name not defined'}
+            response = RequestResponses.create_error_response(Errors.MISSING_ARGUMENT, 'request_name')
             await self.send_message(response)
         else:
             response = self.dispatch_request(request_name)
@@ -164,7 +164,7 @@ class WebSocketHandlerClient:
         args = command_data.get('data')
 
         if not command_name:
-            response = {'status': 'error', 'message': 'command_name not defined'}
+            response = CommandResponses.create_error_response(Errors.MISSING_ARGUMENT, "command_name")
         else:
             # Dispatch the command to the appropriate handler
             response = self.dispatch_command(command_name, args)
