@@ -36,8 +36,8 @@ class ResponseFactory:
         """
         Factory function to create an error response
         """
-        LOGGER.info("Error_type: ", error_type)
-        LOGGER.info("kwargs: ", kwargs)
+        LOGGER.info(f"Error_type: {error_type}")
+        LOGGER.info(f"kwargs: {kwargs}")
         response = error_type.value._asdict()
         for key, value in kwargs.items():
             response[key] = value
@@ -47,7 +47,7 @@ class ResponseFactory:
         """
         Factory function to create a success response
         """
-        LOGGER.info("Success_type: ", success_type)
+        LOGGER.info(f"Success_type: {success_type}")
         response = success_type.value._asdict()
         response['data'] = data
         return response
