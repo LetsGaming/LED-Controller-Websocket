@@ -154,7 +154,7 @@ async def set_brightness(controller_id):
     await _process_response(controller_id, flask_response)
     return flask_response
 
-@led_api.route('/led/all/<string:animation_name>', methods=['POST'])
+@led_api.route('/led/all/<string:animation_name>', methods=['POST', 'GET'])
 async def start_animation_for_all(animation_name):
     """
     Start a certain animation for all connected clients.
@@ -187,7 +187,7 @@ async def start_animation_for_all(animation_name):
     
     if animation_name in option_mapping:
         func = option_mapping[animation_name]
-        return await _start_func_for_all(func, connected_clients, request=request)
+        return await _start_func_for_all(func=func, clients=connected_clients, request=request)
 
     animation_type = None
     for anim_type, anim_set in animation_mapping.items():
@@ -199,9 +199,9 @@ async def start_animation_for_all(animation_name):
         return jsonify(message='Invalid animation name.'), 400
 
     start_animation_func = getattr(websocket_handler, f"start_{animation_type}_animation")
-    if anim_type == "standard":
-        return await _start_func_for_all(start_animation_func, connected_clients, animation_name=animation_name)
-    return await _start_func_for_all(start_animation_func, connected_clients, animation_name, request)
+    if animation_type == "standard":
+        return await _start_func_for_all(func=start_animation_func, clients=connected_clients, animation_name=animation_name)
+    return await _start_func_for_all(func=start_animation_func, clients=connected_clients, animation_name=animation_name, request=request)
 
 async def _start_func_for_all(func, clients, animation_name=None, request=None):
     if not clients:
@@ -211,10 +211,10 @@ async def _start_func_for_all(func, clients, animation_name=None, request=None):
     for controller_id in clients:
         if animation_name is not None and request is not None:
             tasks.append(func(controller_id, animation_name, **request.json))
-        elif animation_name is not None:
+        elif animation_name is not None and request is None:
             tasks.append(func(controller_id, animation_name))
-        elif request is not None:
-            tasks.append(func(controller_id, **request.json))
+        elif request is not None and animation_name is None:
+            tasks.append(func(controller_id, **request.json)) # Only used for calling option fuctions
         else:
             tasks.append(func(controller_id))
 
