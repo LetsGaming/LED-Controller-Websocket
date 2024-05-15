@@ -7,12 +7,13 @@ from led.animations.standardAnimations import *
 from led.animations.customAnimations import *
 from led.animations.specialAnimations import *
 
+from utils.logger import LOGGER
+
 OFFLINE_ERROR = "The LED-Strip is turned OFF!"
 CACHE_FILE = "last_animation_cache.json"
 
 class LEDController():
-    def __init__(self, logger: Logger, strip_config, sunset_config):
-        self.logger = logger
+    def __init__(self, strip_config, sunset_config):
         self.strip_config = strip_config
 
         self.strip = Adafruit_NeoPixel(strip_config["LED_COUNT"], strip_config["LED_PIN"], strip_config["LED_FREQ_HZ"], strip_config["LED_DMA"], strip_config["LED_INVERT"], strip_config["LED_BRIGHTNESS"], strip_config["LED_CHANNEL"])
@@ -27,10 +28,10 @@ class LEDController():
         self.run_startup_animation(self.strip_config["LED_BRIGHTNESS"])
         
         # Start the sunset activation loop in a separate thread
-        sunset_provider = SunsetProvider(sunset_config, self.set_online_state, self.logger)
+        sunset_provider = SunsetProvider(sunset_config, self.set_online_state)
         self.sunset_activation_thread = threading.Thread(target=sunset_provider.auto_activate_and_deactivate)
         self.sunset_activation_thread.start()
-        self.logger.info("Started LED-Controller")
+        LOGGER.info("Started LED-Controller")
         
     def run_startup_animation(self, brightness):
         self.clear_strip()
@@ -71,7 +72,7 @@ class LEDController():
                     self._pause_animation()
                 return True
         except Exception as e:
-            self.logger.error("Error setting Online State:", str(e))
+            LOGGER.error("Error setting Online State:", str(e))
         return False
 
     def _pause_animation(self):
@@ -119,12 +120,12 @@ class LEDController():
                     self.strip.show()
                     return True
                 else:
-                    self.logger.warn("Value not between allowed range")
+                    LOGGER.warn("Value not between allowed range")
                     return False
             else:
                 return OFFLINE_ERROR
         except Exception as e:
-            self.logger.error("Error setting brightness: ", str(e))
+            LOGGER.error("Error setting brightness: ", str(e))
             return False
 
     def _handle_animation(self, animation: Animation):

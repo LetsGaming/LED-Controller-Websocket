@@ -26,7 +26,7 @@ async def main(name=None):
 
         strip_config = config["strip"]
         sunset_config = config["sunset_provider"]
-        led_controller = LEDController(LOGGER, strip_config, sunset_config)
+        led_controller = LEDController(strip_config, sunset_config)
         
         wbs_config = config["websocket"]
         wbs_handler = WebSocketHandlerClient(name, wbs_config["server_address"], wbs_config["server_port"], led_controller, LOGGER)

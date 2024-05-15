@@ -56,9 +56,8 @@ export default defineComponent({
         console.error("Error getting online state:", error);
       }
     },
-    async toggleOnlineState() {
-      const newOnlineState = !this.online; // Toggle online state
-      await this.setOnlineState(newOnlineState);
+    async toggleOnlineState(ev: any) {
+      await this.setOnlineState(ev.detail.checked);
     },
     async setOnlineState(online: boolean) {
       try {

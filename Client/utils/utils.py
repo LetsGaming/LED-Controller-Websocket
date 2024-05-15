@@ -2,8 +2,9 @@ import json
 import time
 from datetime import datetime, timedelta
 import pytz
-from logging import Logger
 import requests
+
+from utils.logger import LOGGER
 
 def validate_rgb_values(red, green, blue):
     try:
@@ -55,7 +56,7 @@ def fade_wheel(wheel_value):
     )
 
 class SunsetProvider():
-    def __init__(self, sunset_config, call_at_sunset, logger: Logger):
+    def __init__(self, sunset_config, call_at_sunset):
         """
         Initializes the object with the given configuration and logger.
 
@@ -76,7 +77,6 @@ class SunsetProvider():
             If `disable_provider` is set to `True` in the `sunset_config`, the object will not be initialized.
         """
         if not sunset_config['disable_provider']:
-            self.logger = logger
             self.callback = call_at_sunset
             self.time_zone = pytz.timezone(sunset_config['time_zone'])
             self.location = self._get_location(sunset_config)
@@ -180,7 +180,7 @@ class SunsetProvider():
                 
                 return sunset_time
             except json.JSONDecodeError:
-                self.logger.error("Unable to parse JSON response from sunrise-sunset API")
+                LOGGER.error("Unable to parse JSON response from sunrise-sunset API")
                 return None
             
     def auto_activate_and_deactivate(self):
@@ -222,9 +222,9 @@ class SunsetProvider():
         """
         if self.sunset_time is not None:
             formatted_time = self.sunset_time.strftime("%d.%m.%Y %H:%M:%S")
-            self.logger.info("Next sunset time: %s", formatted_time)
+            LOGGER.info("Next sunset time: %s", formatted_time)
         else:
-            self.logger.warning("Sunset time is not available.")
+            LOGGER.warning("Sunset time is not available.")
 
 class Location:
     """

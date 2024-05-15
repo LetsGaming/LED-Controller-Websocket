@@ -35,7 +35,7 @@ class SunsetProvider():
             If `disable_provider` is set to `True` in the `sunset_config`, the object will not be initialized.
         """
         if not sunset_config['disable_provider']:
-            self.logger = logger
+            LOGGER = logger
             self.callback = call_at_sunset
             self.time_zone = pytz.timezone(sunset_config['time_zone'])
             self.location = self._get_location(sunset_config)
@@ -139,7 +139,7 @@ class SunsetProvider():
                 
                 return sunset_time
             except json.JSONDecodeError:
-                self.logger.error("Unable to parse JSON response from sunrise-sunset API")
+                LOGGER.error("Unable to parse JSON response from sunrise-sunset API")
                 return None
             
     def auto_activate_and_deactivate(self):
@@ -181,9 +181,9 @@ class SunsetProvider():
         """
         if self.sunset_time is not None:
             formatted_time = self.sunset_time.strftime("%d.%m.%Y %H:%M:%S")
-            self.logger.info("Next sunset time: %s", formatted_time)
+            LOGGER.info("Next sunset time: %s", formatted_time)
         else:
-            self.logger.warning("Sunset time is not available.")
+            LOGGER.warning("Sunset time is not available.")
 
 class Location:
     """
@@ -199,14 +199,14 @@ class Location:
 
 class LEDController:
     def __init__(self, logger: Logger):
-      self.logger = logger
+      LOGGER = logger
       
     def _save_last_animation(self, animation: Animation):
         try:
             with open(CACHE_FILE, 'w') as file:
                 json.dump(animation.serialize(), file)
         except Exception as e:
-            self.logger.error("Error saving last animation:", str(e))
+            LOGGER.error("Error saving last animation:", str(e))
 
     def _load_last_animation(self):
         try:
@@ -216,7 +216,7 @@ class LEDController:
         except FileNotFoundError:
             return None
         except Exception as e:
-            self.logger.error("Error loading last animation:", str(e))
+            LOGGER.error("Error loading last animation:", str(e))
             return None
 
 def test_function(lean: bool):

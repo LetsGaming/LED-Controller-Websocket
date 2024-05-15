@@ -2,7 +2,7 @@ import asyncio
 import json
 import os
 import websockets
-from logging import Logger
+from utils.logger import LOGGER
 from led.controller import LEDController, OFFLINE_ERROR
 
 from websocket.responses import *
@@ -14,7 +14,7 @@ class WebSocketHandlerClient:
     Handles WebSocket communication for the LED controller client.
     """
 
-    def __init__(self, client_name: str, server_address: str, server_port: str, led_controller: LEDController, logger: Logger,):
+    def __init__(self, client_name: str, server_address: str, server_port: str, led_controller: LEDController):
         """
         Initializes the WebSocketHandlerClient.
 
@@ -29,7 +29,6 @@ class WebSocketHandlerClient:
         self.server_address = server_address
         self.server_port = server_port
         self.led_controller = led_controller
-        self.logger = logger
         
         # Map command names to handler methods
         self.handlers = {
@@ -86,11 +85,11 @@ class WebSocketHandlerClient:
                 uri = f"ws://{self.server_address}:{self.server_port}"
                 async with websockets.connect(uri, ping_interval=None) as websocket:
                     self.websocket = websocket
-                    self.logger.info(f"Connected to WebSocket server at {self.server_address}")
+                    LOGGER.info(f"Connected to WebSocket server at {self.server_address}")
                     await self.send_message({'name': self.client_name})
                     await self.handle_messages()
             except Exception as e:
-                self.logger.error(f"Failed to connect to WebSocket server. Error: {e}")
+                LOGGER.error(f"Failed to connect to WebSocket server. Error: {e}")
                 await asyncio.sleep(5) 
 
     async def send_message(self, message: dict):
@@ -102,9 +101,9 @@ class WebSocketHandlerClient:
         """
         try:
             await self.websocket.send(json.dumps(message))
-            self.logger.info(f"Sent message to server: {message}")
+            LOGGER.info(f"Sent message to server: {message}")
         except Exception as e:
-            self.logger.error(f"Failed to send message to server: {message}. Error: {e}")
+            LOGGER.error(f"Failed to send message to server: {message}. Error: {e}")
 
     async def handle_messages(self):
         """
@@ -116,7 +115,7 @@ class WebSocketHandlerClient:
                 await self.handle_message(message)
                 await asyncio.sleep(.1)
             except websockets.exceptions.ConnectionClosed:
-                self.logger.warning("WebSocket connection closed unexpectedly. Reconnecting...")
+                LOGGER.warning("WebSocket connection closed unexpectedly. Reconnecting...")
                 await self.connect()
 
     async def handle_message(self, message):
@@ -128,14 +127,14 @@ class WebSocketHandlerClient:
         """
         try:
             data = json.loads(message)
-            self.logger.info(f"Message recieved from server: {data}")
+            LOGGER.info(f"Message recieved from server: {data}")
             event = data.get('event')
             if event == 'command':
                 await self.handle_command(data)
             elif event == 'request':
                 await self.handle_request(data)
         except json.JSONDecodeError:
-            self.logger.error(f"Failed to decode JSON message: {message}")
+            LOGGER.error(f"Failed to decode JSON message: {message}")
 
     async def handle_request(self, request_data):
         """
@@ -188,16 +187,16 @@ class WebSocketHandlerClient:
 
         # Check if the request name is valid
         if request_name not in handlers:
-            self.logger.error('Unknown request: %s', request_name)
+            LOGGER.error('Unknown request: %s', request_name)
             return RequestResponses.create_error_response(Errors.UNKNOWN_REQUEST)
 
         # Call the appropriate handler and return its response
         strip_response = handlers[request_name]()
         if strip_response == OFFLINE_ERROR:
-            self.logger.error('Error: %s', strip_response)
+            LOGGER.error('Error: %s', strip_response)
             return RequestResponses.create_error_response(Errors.GENERAL_ERROR, strip_response)
         else:
-            self.logger.info('Request completed successfully')
+            LOGGER.info('Request completed successfully')
             return RequestResponses.create_success_response(Successes.REQUEST_SUCCESS, strip_response)
 
     def dispatch_command(self, command_name, args):
@@ -213,37 +212,41 @@ class WebSocketHandlerClient:
         """
         # Check if the command name is valid
         if command_name not in self.handlers:
-            self.logger.error('Unknown command: %s', command_name)
+            LOGGER.error('Unknown command: %s', command_name)
             return CommandResponses.create_error_response(Errors.UNKNOWN_COMMAND)
 
         # Call the appropriate handler and return its response
         strip_response = self.handlers[command_name](**args)
         if strip_response == OFFLINE_ERROR:
-            self.logger.error('Error: %s', strip_response)
+            LOGGER.error('Error: %s', strip_response)
             return CommandResponses.create_error_response(Errors.GENERAL_ERROR, strip_response)
         else:
-            self.logger.info('Request completed successfully')
+            LOGGER.info('Request completed successfully')
             return CommandResponses.create_success_response(Successes.REQUEST_SUCCESS, strip_response)
     
     def _check_animation_name(self, name, animations):
         if not name:
-            self.logger.error('No animation name provided')
+            LOGGER.error('No animation name provided')
             return CommandResponses.create_error_response(Errors.MISSING_ARGUMENT, 'animation_name')
         
         if name not in animations:
-            self.logger.error('Unknown animation: %s', name)
+            LOGGER.error('Unknown animation: %s', name)
             return CommandResponses.create_error_response(Errors.UNKNOWN_ANIMATION)
     
     def start_static_animation(self, **data):
         animation_name = data['animation_name']
         args = data['args']
-        self._check_animation_name(animation_name, self.static_animations)
-
+        name_check = self._check_animation_name(animation_name, self.static_animations)
+        if name_check:
+            return name_check
+        
         self._save_animation_to_file(data, 'start')
         return self.static_animations[animation_name](**args)
     
     def start_standard_animation(self, animation_name):
-        self._check_animation_name(animation_name, self.standard_animations)
+        name_check = self._check_animation_name(animation_name, self.standard_animations)
+        if name_check:
+            return name_check
         
         self._save_animation_to_file({'animation_name': animation_name}, 'standard')
         return self.standard_animations[animation_name]()
@@ -251,7 +254,9 @@ class WebSocketHandlerClient:
     def start_custom_animation(self, **data):
         animation_name = data['animation_name']
         args = data['args']
-        self._check_animation_name(animation_name, self.custom_animations)
+        name_check = self._check_animation_name(animation_name, self.custom_animations)
+        if name_check:
+            return name_check
         
         self._save_animation_to_file(data, 'custom')
         return self.custom_animations[animation_name](**args)
@@ -259,13 +264,15 @@ class WebSocketHandlerClient:
     def start_special_animation(self, **data):
         animation_name = data['animation_name']
         args = data['args']
-        self._check_animation_name(animation_name, self.special_animations)
+        name_check = self._check_animation_name(animation_name, self.special_animations)
+        if name_check:
+            return name_check
         
         self._save_animation_to_file(data, 'special')
         return self.special_animations[animation_name](**args)
         
     def _save_animation_to_file(self, animation_data: dict, type: str):
-        self.logger.info("Saving animation to json")
+        LOGGER.info("Saving animation to json")
         data = animation_data
         data['type'] = type
         data['brightness'] = self.led_controller.get_brightness()
@@ -289,13 +296,13 @@ class WebSocketHandlerClient:
                 
         animation_type = data['type']
         if not animation_type:
-            self.logger.error('Missing animation type when handling loaded data')
+            LOGGER.error('Missing animation type when handling loaded data')
         del data['type']
         
         self.led_controller.set_brightness(data['brightness'])
         del data['brightness']
         
-        self.logger.info('Starting animation: %s', animation_type)
+        LOGGER.info('Starting animation: %s', animation_type)
         if animation_type == 'standard':
             animation_name = data['animation_name']
             self.start_standard_animation(animation_name)

@@ -165,7 +165,7 @@ async def start_animation_for_all(animation_name):
         tuple: Tuple containing JSON response and HTTP status code.
     """
     option_mapping = {
-        'set_online': set_online_state,
+        'set_online_state': set_online_state,
         'set_brightness': set_brightness
     }
 
