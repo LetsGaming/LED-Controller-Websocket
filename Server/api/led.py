@@ -3,6 +3,7 @@ import threading
 import time
 from flask import Blueprint, jsonify, request, make_response, Response, abort
 from api.config import static_animations, standard_animations, custom_animations, special_animations
+from utils.logger import LOGGER
 from websocket.websocket_server import WebSocketServer
 
 # Global Constants
@@ -165,8 +166,8 @@ async def start_animation_for_all(animation_name):
         tuple: Tuple containing JSON response and HTTP status code.
     """
     option_mapping = {
-        'set_online_state': set_online_state,
-        'set_brightness': set_brightness
+        'set_online_state': websocket_handler.set_online_state,
+        'set_brightness': websocket_handler.set_brightness
     }
 
     animation_mapping = {
@@ -210,6 +211,7 @@ async def _start_func_for_all(func, clients, animation_name=None, request=None):
     for controller_id in clients:
         tasks.append(func(controller_id, animation_name, request.json))
 
+    LOGGER.info(f"Data for all clients: func: {func} | clients: {clients} | animation_name: {animation_name} | request.json: {request.json}")
     await asyncio.gather(*tasks)
     return jsonify(message="Function called for all connected clients"), 200
 
