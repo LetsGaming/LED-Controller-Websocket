@@ -218,7 +218,6 @@ async def _start_func_for_all(func, clients, animation_name=None, request=None):
         else:
             tasks.append(func(controller_id))
 
-    LOGGER.info(f"Data for all clients: func: {func} | clients: {clients} | animation_name: {animation_name} | request.json: {request.json}")
     await asyncio.gather(*tasks)
     return jsonify(message="Function called for all connected clients"), 200
 
