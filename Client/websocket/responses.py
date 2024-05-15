@@ -31,7 +31,7 @@ class ResponseFactory:
     """
     Class for response factory
     """
-    def create_error_response(self, error_type: Errors, **kwargs) -> dict:
+    def create_error_response(error_type: Errors, **kwargs) -> dict:
         """
         Factory function to create an error response
         """
@@ -44,7 +44,7 @@ class ResponseFactory:
         response.update(kwargs)
         return response
 
-    def create_success_response(self, success_type: Successes, data=None) -> dict:
+    def create_success_response(success_type: Successes, data=None) -> dict:
         """
         Factory function to create a success response
         """
