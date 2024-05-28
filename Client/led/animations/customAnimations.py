@@ -130,7 +130,6 @@ class Color_Chase(Animation):
         self.green = green
         self.blue = blue
 
-        self.tail_length = 10
         self.wait_ms = 50
 
     def _color_chase(self):
@@ -138,6 +137,7 @@ class Color_Chase(Animation):
             if validate_rgb_values(self.red, self.green, self.blue):
                 color = Color(self.red, self.green, self.blue)
                 num_pixels = self.strip.numPixels()
+                tail_length = int((num_pixels * 5) / 100) 
                 self.animationStarted = True
                 while not self.stopAnimation:
                     if self.stopAnimation:
@@ -145,8 +145,8 @@ class Color_Chase(Animation):
                     pixel_list = [-1] * num_pixels
 
                     # Randomly determine the starting position for the tail
-                    start_position = random.randint(0, num_pixels - self.tail_length - 1)
-                    for i in range(start_position, start_position + self.tail_length):
+                    start_position = random.randint(0, num_pixels - tail_length - 1)
+                    for i in range(start_position, start_position + tail_length):
                         if self.stopAnimation:
                             break
                         pixel_list[i] = i - start_position
@@ -164,7 +164,7 @@ class Color_Chase(Animation):
                         pixel_list[0] = i
 
                         # Display the tail
-                        for j in range(self.tail_length):
+                        for j in range(tail_length):
                             if self.stopAnimation:
                                 break
                             if pixel_list[j] >= 0:
@@ -175,15 +175,15 @@ class Color_Chase(Animation):
                         self.strip.show()
 
                         # Turn off the last pixel
-                        if i >= self.tail_length :
-                            self.strip.setPixelColor(i - self.tail_length , 0)
+                        if i >= tail_length :
+                            self.strip.setPixelColor(i - tail_length , 0)
                             self.strip.show()
 
                         time.sleep(self.wait_ms / 1000.0)
                         if self.stopAnimation:
                             break
                     # Turn off the remaining tail
-                    for i in range(self.tail_length):
+                    for i in range(tail_length):
                         if self.stopAnimation:
                             break
                         if pixel_list[i] >= 0:

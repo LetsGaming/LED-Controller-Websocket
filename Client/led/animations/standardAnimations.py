@@ -34,7 +34,7 @@ class Rainbow_Comet(Animation):
     def _rainbow_comet(self):
         try:
             num_pixels = self.strip.numPixels()
-            tail_length = 5
+            tail_length = int((num_pixels * 5) / 100) 
             comet_speed = 0.1
             self.animationStarted = True
             while not self.stopAnimation:

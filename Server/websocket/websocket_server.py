@@ -25,7 +25,15 @@ class WebSocketServer:
 
     async def __handle_connection(self, websocket, path):
         sid = id(websocket)
-        self.connected_clients[sid] = {'id': sid, 'name': 'none'} 
+        client_name = None
+
+        # Check if a client with the same name already exists
+        for client in self.connected_clients.values():
+            if client['name'] == client_name:
+                await self.__handle_disconnection(client['id'])
+                break
+
+        self.connected_clients[sid] = {'id': sid, 'name': client_name} 
         LOGGER.info(f"Client {sid} connected")
 
         try:

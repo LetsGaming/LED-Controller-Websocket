@@ -10,7 +10,7 @@
     },
     "websocket": {
         "server_address": "192.168.2.100",
-        "server_port": "8080"
+        "server_port": "8888"
     },
     "sunset_provider": {
         "disable_provider": false,

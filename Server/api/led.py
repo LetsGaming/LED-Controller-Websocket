@@ -3,11 +3,10 @@ import threading
 import time
 from flask import Blueprint, jsonify, request, make_response, Response, abort
 from api.config import static_animations, standard_animations, custom_animations, special_animations
-from utils.logger import LOGGER
 from websocket.websocket_server import WebSocketServer
 
 # Global Constants
-LED_API_PORT = 8080
+LED_API_PORT = 8888
 EXPECTED_WEBSOCKET_RESPONSES = {}
 
 # Initialize WebSocketHandlerServer
@@ -20,9 +19,8 @@ def websocket_server_callback(sid, response_data):
     """
     # Check if sid is in the expected responses dictionary
     if sid in EXPECTED_WEBSOCKET_RESPONSES:
-        current_response = EXPECTED_WEBSOCKET_RESPONSES[sid]
-        current_response['response_data'] = response_data
-
+        EXPECTED_WEBSOCKET_RESPONSES[sid]['response_data'] = response_data
+        
 def initialize_websocket_handler():
     global websocket_server, websocket_handler
     websocket_server = WebSocketServer(LED_API_PORT, websocket_server_callback)
