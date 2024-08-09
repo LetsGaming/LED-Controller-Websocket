@@ -87,7 +87,7 @@ class SunsetProvider():
         except:
             return None
 
-    def _get_sunset_time(self, date: datetime=None):
+    def _get_sunset_time(self, date=None):
         """
         Retrieves the sunset time for the specified date and location.
 
@@ -102,31 +102,33 @@ class SunsetProvider():
         If the date is not specified, it defaults to the current date.
         """
         if self.location is not None:
-            if date is None:
-                date = datetime.now()
+            try: 
+                if date is None:
+                    date = datetime.now()
 
-            latitude = self.location.latitude
-            longitude = self.location.longitude
-            
-            formatted_date = date.strftime("%Y-%m-%d")
-            
-            url = f"https://api.sunrise-sunset.org/json?lat={latitude}&lng={longitude}&date={formatted_date}&formatted=0"
-            response = requests.get(url)
+                latitude = self.location.latitude
+                longitude = self.location.longitude
+                
+                formatted_date = date.strftime("%Y-%m-%d")
+                
+                url = f"https://api.sunrise-sunset.org/json?lat={latitude}&lng={longitude}&date={formatted_date}&formatted=0"
+                response = requests.get(url)
 
-            try:
-                data = response.json()
-                sunset_time_str = data['results']['sunset']
-                
-                sunset_time_data = datetime.fromisoformat(sunset_time_str[:-6])
-                sunset_time = pytz.utc.localize(sunset_time_data)
-                sunset_time = sunset_time.astimezone(self.time_zone)
-                
-                return sunset_time
-            except (json.JSONDecodeError, KeyError) as e:
-                LOGGER.error("Unable to parse JSON response from sunrise-sunset API: %s", e)
-                return None
+                try:
+                    data = response.json()
+                    sunset_time_str = data['results']['sunset']
+                    
+                    sunset_time_data = datetime.fromisoformat(sunset_time_str[:-6])
+                    sunset_time = pytz.utc.localize(sunset_time_data)
+                    sunset_time = sunset_time.astimezone(self.time_zone)
+                    
+                    return sunset_time
+                except (json.JSONDecodeError, KeyError) as e:
+                    LOGGER.error("Unable to parse JSON response from sunrise-sunset API: %s", e)
+                    return None
             except Exception as e:
                 LOGGER.error("An error occurred while retrieving sunset time: %s", e)
+                return None
 
     def _get_sunset_time_with_retry(self, date: datetime=None):
         """
