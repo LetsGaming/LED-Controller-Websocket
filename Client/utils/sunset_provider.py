@@ -84,7 +84,8 @@ class SunsetProvider():
             data = response.json()
             latitude, longitude = map(float, data['loc'].split(','))
             return Location(latitude, longitude)
-        except:
+        except Exception as e:
+            LOGGER.error(f"Failed to retrieve location: {e}")
             return None
 
     def _get_sunset_time(self, date=None):
