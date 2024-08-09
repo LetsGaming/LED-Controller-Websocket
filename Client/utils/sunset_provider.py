@@ -125,6 +125,8 @@ class SunsetProvider():
             except (json.JSONDecodeError, KeyError) as e:
                 LOGGER.error("Unable to parse JSON response from sunrise-sunset API: %s", e)
                 return None
+            except Exception as e:
+                LOGGER.error("An error occurred while retrieving sunset time: %s", e)
 
     def _get_sunset_time_with_retry(self, date: datetime=None):
         """
