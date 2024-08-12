@@ -6,12 +6,13 @@ from utils.logger import LOGGER
 from websocket.websocket_command_handler import WebSocketCommandHandler
 
 class WebSocketServer:
-    def __init__(self, port: int, callback):
+    def __init__(self, port: int, callback, allow_duplicate_client_names = False):
         self.connected_clients = {}
         self.server = None
         self.handler = WebSocketCommandHandler(self.send_message)
         self.port = port
         self.callback = callback
+        self.allow_duplicate_client_names = allow_duplicate_client_names
 
     async def init_server(self):
         host = '0.0.0.0'
@@ -27,12 +28,6 @@ class WebSocketServer:
         sid = id(websocket)
         client_name = None
 
-        # Check if a client with the same name already exists
-        for client in self.connected_clients.values():
-            if client['name'] == client_name:
-                await self.__handle_disconnection(client['id'])
-                break
-
         self.connected_clients[sid] = {'id': sid, 'name': client_name} 
         LOGGER.info(f"Client {sid} connected")
 
@@ -43,6 +38,8 @@ class WebSocketServer:
             client_name = name_data.get('name')
 
             if client_name:
+                if not self.allow_duplicate_client_names:
+                    await self.__disconnect_duplicate_client(client_name)
                 self.connected_clients[sid]['name'] = client_name
 
             async for message in websocket:
@@ -54,14 +51,23 @@ class WebSocketServer:
         finally:
             await self.__handle_disconnection(sid)
 
+    async def __disconnect_duplicate_client(self, client_name: str):
+        # Check if a client with the same name already exists
+        for client in self.connected_clients.values():
+            if client['name'] == client_name:
+                await self.__handle_disconnection(client['id'])
+                break
+    
     async def __handle_disconnection(self, sid):
         client_data = self.connected_clients.pop(sid, None)
         if client_data:
             client_name = client_data['name']
-            LOGGER.info(f"Client {client_name} ({sid}) disconnected")
+            
             websocket = next((ws for ws in self.server.websockets if id(ws) == sid), None)
             if websocket:
                 await websocket.close()
+                
+            LOGGER.info(f"Client {client_name} ({sid}) disconnected")
 
     async def handle_response(self, sid, data):
         self.callback(sid, data)
