@@ -31,7 +31,7 @@ class SunsetProvider():
         if not sunset_config['disable_provider']:
             self.callback = call_at_sunset
             self.time_zone = pytz.timezone(sunset_config['time_zone'])
-            self.location = self._get_location(sunset_config)
+            self.location = self._get_location_with_retry(sunset_config)
 
             conf_turn_off_time = sunset_config['turn_off_time']
             if conf_turn_off_time:
@@ -87,7 +87,24 @@ class SunsetProvider():
         except Exception as e:
             LOGGER.error(f"Failed to retrieve location: {e}")
             return None
+        
+    def _get_location_with_retry(self, sunset_config):
+        """
+        Continuously tries to get the location until it succeeds.
 
+        Args:
+        sunset_config: The config for how to retrieve the location.
+
+        Returns:
+        location: A Location object representing the latitude and longitude of your location.
+        """
+        while True:
+            location = self._get_location(sunset_config)
+            if location:
+                return location
+            LOGGER.warning("Failed to get location, retrying in 30 seconds...")
+            time.sleep(30)
+            
     def _get_sunset_time(self, date=None):
         """
         Retrieves the sunset time for the specified date and location.
