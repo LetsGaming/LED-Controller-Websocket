@@ -63,7 +63,7 @@
       <IonToast
         :isOpen="isToastVisible"
         :message="toastMessage"
-        position="top"
+        position="bottom"
         duration="5000"
         @didDismiss="clearToast"
         class="custom-toast"

@@ -5,9 +5,6 @@
     </IonCardHeader>
 
     <IonCardContent>
-      <IonButton @click="getBrightness" style="display: flex"
-        >Get</IonButton
-      >
       <div class="brightness-control">
         <IonRange
           @ion-change="calcBrightness"
@@ -16,7 +13,6 @@
           :pin-formatter="pinFormatter"
           v-model="brightnessPercentage"
         ></IonRange>
-        <IonButton @click="setBrightness">Set</IonButton>
       </div>
     </IonCardContent>
   </IonCard>
@@ -51,6 +47,9 @@ export default defineComponent({
       required: true,
     },
   },
+  async mounted() {
+    await this.getBrightness(true)
+  },
   setup() {
     return {
       pinFormatter: (value: number) => `${value}%`,
@@ -59,25 +58,33 @@ export default defineComponent({
   data() {
     return {
       brightness: 0,
-      brightnessPercentage: 0
+      brightnessPercentage: 0,
     };
   },
+  computed: {
+    isAllController() {
+      return this.selectedControllerId === "all";
+    },
+  },
   methods: {
-    calcBrightness(ev: any) {
+    async calcBrightness(ev: any) {
       this.brightnessPercentage = ev.detail.value;
       this.brightness = Math.round((this.brightnessPercentage / 100) * 255);
-    },
-    async getBrightness() {
-      try {
-        const endpoint = this.selectedControllerId == 'all' ?  '/led/all/get_brightness' : `/led/get_brightness/${this.selectedControllerId}`;
 
-        const data = await fetchJson(
-          endpoint,
-          undefined,
-          false
-        );
+      await this.setBrightness();
+    },
+    async getBrightness(suppressMessage?: boolean) {
+      try {
+        const endpoint = this.isAllController
+          ? "/led/all/get_brightness"
+          : `/led/get_brightness/${this.selectedControllerId}`;
+
+        const data = await fetchJson(endpoint, undefined, false);
         this.brightness = data.message.data; // Update brightness from server
         this.brightnessPercentage = (this.brightness * 100) / 255;
+        
+        if(suppressMessage) return;
+
         this.emitMessageEvent(`Controller brightness: ${this.brightness}`);
       } catch (error) {
         console.error("Error getting brightness:", error);
@@ -85,7 +92,9 @@ export default defineComponent({
     },
     async setBrightness() {
       try {
-        const endpoint = this.selectedControllerId == 'all' ? '/led/all/set_brightness' : `/led/set_brightness/${this.selectedControllerId}`;
+        const endpoint = this.isAllController
+          ? "/led/all/set_brightness"
+          : `/led/set_brightness/${this.selectedControllerId}`;
 
         const data = await fetchJson(
           endpoint,

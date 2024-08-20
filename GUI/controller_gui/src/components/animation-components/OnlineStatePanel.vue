@@ -1,8 +1,7 @@
 <template>
-  <IonCard class="align-middle">
+  <IonCard class="align-middle" style="display: grid">
     <IonCardHeader>
       <IonCardTitle>Online State</IonCardTitle>
-      <IonButton @click="getOnlineState">Get</IonButton>
     </IonCardHeader>
 
     <IonCardContent class="center-content">
@@ -12,7 +11,6 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from "vue";
 import {
   IonCard,
   IonCardHeader,
@@ -23,7 +21,7 @@ import {
 } from "@ionic/vue";
 import { fetchJson } from "@/provider/Utils";
 
-export default defineComponent({
+export default {
   emits: ["messageEvent"],
   components: {
     IonCard,
@@ -39,21 +37,25 @@ export default defineComponent({
       required: true,
     },
   },
-  mounted() {
-    this.getOnlineState();
-  },
-  setup(props, { emit }) {
-    const online = ref(false);
-
-    const emitMessageEvent = (message: string) => {
-      emit("messageEvent", message);
+  data() {
+    return {
+      online: false,
     };
+  },
+  async mounted() {
+    await this.getOnlineState(true);
+  },
+  computed: {
+    isAllController() {
+      return this.selectedControllerId === "all";
+    },
+  },
+  methods: {
+    emitMessageEvent(message: string) {
+      this.$emit("messageEvent", message);
+    },
 
-    const isAllController = () => {
-      return Array.isArray(props.selectedControllerId) && props.selectedControllerId.includes('all')
-    }
-
-    const fetchOnlineState = async (endpoint: string) => {
+    async fetchOnlineState(endpoint: string) {
       try {
         const response = await fetchJson(endpoint);
         return response.message?.data || false;
@@ -61,47 +63,45 @@ export default defineComponent({
         console.error("Error fetching online state:", error);
         return false;
       }
-    };
+    },
 
-    const getOnlineState = async () => {
-      const endpoint = isAllController()
-        ? '/led/all/get_online_state'
-        : `/led/get_online_state/${props.selectedControllerId}`;
-      
-      online.value = await fetchOnlineState(endpoint);
-      emitMessageEvent(`Online state: ${online.value}`);
-    };
+    async getOnlineState(suppressMessage?: boolean) {
+      const endpoint = this.isAllController
+        ? "/led/all/get_online_state"
+        : `/led/get_online_state/${this.selectedControllerId}`;
 
-    const toggleOnlineState = async (ev: any) => {
-      await setOnlineState(ev.detail.checked);
-    };
+      this.online = await this.fetchOnlineState(endpoint);
 
-    const setOnlineState = async (newOnlineState: boolean) => {
+      if(suppressMessage) return;
+      this.emitMessageEvent(`Online state: ${this.online}`);
+    },
+
+    async toggleOnlineState(ev: any) {
+      await this.setOnlineState(ev.detail.checked);
+    },
+
+    async setOnlineState(newOnlineState: boolean) {
       try {
-        const endpoint = isAllController()
-          ? `/led/all/set_online_state`
-          : `/led/set_online_state/${props.selectedControllerId}`;
-        
+        const endpoint = this.isAllController
+          ? "/led/all/set_online_state"
+          : `/led/set_online_state/${this.selectedControllerId}`;
+
         const response = await fetchJson(endpoint, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ online: newOnlineState }),
         });
 
-        online.value = newOnlineState;
-        emitMessageEvent(response.message?.message || "State updated successfully");
+        this.online = newOnlineState;
+        this.emitMessageEvent(
+          response.message?.message || "State updated successfully"
+        );
       } catch (error) {
         console.error("Error setting online state:", error);
       }
-    };
-
-    return {
-      online,
-      getOnlineState,
-      toggleOnlineState,
-    };
+    },
   },
-});
+};
 </script>
 
 <style scoped>
