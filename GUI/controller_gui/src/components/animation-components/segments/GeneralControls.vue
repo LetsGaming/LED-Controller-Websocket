@@ -1,37 +1,45 @@
 <template>
-  <div>
+  <div class="general-controls">
     <!-- Online State -->
     <OnlineStatePanel
       :selected-controller-id="selectedControllerId"
       @message-event="handleMessageEvent"
-    ></OnlineStatePanel>
+    />
 
-    <!-- Brightness -->
-    <BirightnessPanel
+    <!-- Brightness Panel -->
+    <BrightnessPanel
       :selected-controller-id="selectedControllerId"
       @message-event="handleMessageEvent"
-    ></BirightnessPanel>
+    />
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue";
 
-import OnlineStatePanel from "../OnlineStatePanel.vue";
-import BirightnessPanel from "../BirightnessPanel.vue";
+// Import components
+import OnlineStatePanel from "@/components/animation-components/OnlineStatePanel.vue";
+import BrightnessPanel from "@/components/animation-components/BrightnessPanel.vue";
 
 export default defineComponent({
+  // Declare emits
   emits: ["message_event"],
+  
+  // Component registration
   components: {
     OnlineStatePanel,
-    BirightnessPanel,
+    BrightnessPanel,
   },
+  
+  // Props validation
   props: {
     selectedControllerId: {
       type: [String, Array],
       required: true,
     },
   },
+  
+  // Methods
   methods: {
     handleMessageEvent(message: string) {
       this.$emit("message_event", message);
@@ -39,3 +47,20 @@ export default defineComponent({
   },
 });
 </script>
+
+<style scoped>
+/* Add some responsive and spacing adjustments */
+.general-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 10px;
+}
+
+/* Adjust for mobile view */
+@media (max-width: 768px) {
+  .general-controls {
+    gap: 15px;
+  }
+}
+</style>

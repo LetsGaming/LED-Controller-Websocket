@@ -1,63 +1,71 @@
 <template>
   <IonPage>
+    <!-- Header and Segment Navigation -->
     <IonHeader>
-      <IonToolbar>
+      <IonToolbar color="primary">
         <IonSegment
-          :scrollable="true"
           :value="selectedSegment"
-          @ion-change="changeSelectedSegment"
+          scrollable
+          @ionChange="changeSelectedSegment"
         >
-          <IonSegmentButton value="general"
-            ><ion-icon :icon="settings"></ion-icon
-          ></IonSegmentButton>
+          <IonSegmentButton value="general">
+            <ion-icon :icon="settings" slot="start"></ion-icon>
+            <IonLabel>General</IonLabel>
+          </IonSegmentButton>
+
           <IonSegmentButton
-            v-for="(animation, index) in Object.keys(animations)"
-            :value="animation"
+            v-for="(animation, index) in animationCategories"
             :key="index"
-            >{{ animation }}</IonSegmentButton
+            :value="animation"
           >
+            <IonLabel>{{ capitalize(animation) }}</IonLabel>
+          </IonSegmentButton>
         </IonSegment>
       </IonToolbar>
     </IonHeader>
 
-    <IonContent>
+    <!-- Content -->
+    <IonContent class="ion-padding">
+      <!-- Display message when no controller is selected -->
       <template v-if="!selectedControllerId">
-        <IonCard class="align-middle" style="margin-top: 20dvh">
-          <IonCardHeader
-            ><IonCardTitle>No Controller selected</IonCardTitle> </IonCardHeader
-          ><IonCardContent
-            >Please select a controller from the menu</IonCardContent
-          >
+        <IonCard class="ion-margin-top ion-text-center">
+          <IonCardHeader>
+            <IonCardTitle>No Controller Selected</IonCardTitle>
+          </IonCardHeader>
+          <IonCardContent>
+            Please select a controller from the menu
+          </IonCardContent>
         </IonCard>
       </template>
+
+      <!-- General or Animation Panels based on selected segment -->
       <template v-else>
+        <!-- General Controls -->
         <GeneralControls
-          v-if="selectedSegment == 'general'"
+          v-if="selectedSegment === 'general'"
           :selected-controller-id="selectedControllerId"
           @message_event="handleMessageEvent"
-          style="margin-top: 20dvh"
-        ></GeneralControls>
-        <template
-          v-for="(animation, index) in Object.keys(animations)"
-          :key="index"
-        >
+        />
+
+        <!-- Animation Control Panels -->
+        <template v-for="(animation, index) in Object.keys(animations)">
           <AnimationControlPanel
-            v-if="selectedSegment == animation"
-            :panel-name="`${
-              animation.charAt(0).toUpperCase() + animation.slice(1)
-            } Animations`"
+            v-if="selectedSegment === animation"
+            :key="index"
+            :panel-name="capitalize(animation) + ' Animations'"
             :animations="animations[animation]"
             @animation_start="handleStartAnimation"
-            style="margin-top: 20dvh"
           />
         </template>
       </template>
+
+      <!-- Toast for feedback messages -->
       <IonToast
         :isOpen="isToastVisible"
         :message="toastMessage"
         position="top"
         duration="5000"
-        @onDidDismiss="clearToast"
+        @didDismiss="clearToast"
         class="custom-toast"
       />
     </IonContent>
@@ -74,26 +82,18 @@ import {
   IonCardHeader,
   IonCardTitle,
   IonCardContent,
-  IonInput,
-  IonSelect,
-  IonItem,
-  IonList,
-  IonTitle,
-  IonToolbar,
   IonHeader,
-  IonButton,
-  IonSelectOption,
-  IonLabel,
+  IonToolbar,
   IonToast,
   IonSegment,
   IonSegmentButton,
   IonIcon,
+  IonLabel,
 } from "@ionic/vue";
 import { settings } from "ionicons/icons";
 
 import GeneralControls from "@/components/animation-components/segments/GeneralControls.vue";
 import AnimationControlPanel from "@/components/animation-components/AnimationControlPanel.vue";
-
 import { fetchJson } from "@/provider/Utils";
 
 interface AnimationData {
@@ -110,48 +110,56 @@ export default defineComponent({
     IonCardHeader,
     IonCardTitle,
     IonCardContent,
-    IonInput,
-    IonSelect,
-    IonItem,
-    IonList,
-    IonTitle,
-    IonToolbar,
     IonHeader,
-    IonButton,
-    IonSelectOption,
-    IonLabel,
+    IonToolbar,
     IonToast,
     IonSegment,
     IonSegmentButton,
     IonIcon,
+    IonLabel,
   },
   setup() {
     return { settings };
-  },
-  async mounted() {
-    await this.initializeComponent();
   },
   data() {
     return {
       isToastVisible: false,
       toastMessage: "",
       selectedControllerId: "" as string | string[],
-      brightness: 0,
-      animations: {} as AnimationData,
-
       selectedSegment: "general",
+      animations: {} as AnimationData,
+      animationCategories: ["static", "standard", "custom", "special"], // Categories of animations
     };
   },
+  async mounted() {
+    await this.initializeComponent();
+  },
   methods: {
-    changeSelectedSegment(event: any) {
-      this.selectedSegment = event.target.value;
-    },
     async initializeComponent() {
       const route = useRoute();
-      const { controllerId } = route.params;
-      this.selectedControllerId = controllerId;
+      this.selectedControllerId = route.params.controllerId || "";
 
-      await this.getAnimations();     
+      // Fetch all animations data at once
+      await this.getAnimations();
+    },
+    async getAnimations() {
+      try {
+        // Fetch animation data for all categories in parallel
+        const categories = this.animationCategories;
+        const promises = categories.map((category) =>
+          fetchJson(`/led/animations/${category}`, undefined, false)
+        );
+
+        const results = await Promise.all(promises);
+        categories.forEach((category, index) => {
+          this.animations[category] = results[index];
+        });
+      } catch (error) {
+        console.error("Error getting animations:", error);
+      }
+    },
+    changeSelectedSegment(event: any) {
+      this.selectedSegment = event.target.value;
     },
     clearToast() {
       this.isToastVisible = false;
@@ -161,45 +169,14 @@ export default defineComponent({
       this.toastMessage = message;
       this.isToastVisible = true;
     },
-    async handleStartAnimation(data: StartAnimationEvent) {
-      const animationCategory = data.name.split(" ")[0];
-      switch (animationCategory) {
-        case "Static":
-          await this.startAnimation(
-            animationCategory.toLowerCase(),
-            data.animation,
-            data.args
-          );
-          break;
-        case "Standard":
-          await this.startAnimation(
-            animationCategory.toLowerCase(),
-            data.animation,
-            {}
-          );
-          break;
-        case "Custom":
-          await this.startAnimation(
-            animationCategory.toLowerCase(),
-            data.animation,
-            data.args
-          );
-          break;
-        case "Special":
-          await this.startAnimation(
-            animationCategory.toLowerCase(),
-            data.animation,
-            data.args
-          );
-          break;
-        default:
-          break;
-      }
-    },
-    async startAnimation(category: string, animation: string, args = {}) {
+    async handleStartAnimation(data: any) {
       try {
+        const { name, animation, args } = data;
+       
+        const category = this.splitCategory(name)
+
         let endpoint = `/led/animations/${category}/${animation}/${this.selectedControllerId}`;
-        if (this.selectedControllerId == "all") {
+        if (this.selectedControllerId === "all") {
           endpoint = `/led/all/${animation}`;
         }
 
@@ -214,29 +191,34 @@ export default defineComponent({
             }
           : undefined;
 
-        const data = await fetchJson(endpoint, options, false);
-        this.handleMessageEvent(data.message.message || data.message);
+        const response = await fetchJson(endpoint, options, false);
+        this.handleMessageEvent(response.message.message || response.message);
       } catch (error) {
+        const category = this.splitCategory(data.name)
         console.error(`Error starting ${category} animation:`, error);
       }
     },
-    async getAnimations() {
-      try {
-        const categories = ["static", "standard", "custom", "special"];
-        await Promise.all(
-          categories.map(async (category: string) => {
-            const response = await fetchJson(
-              `/led/animations/${category}`,
-              undefined,
-              false
-            );
-            this.animations[category] = response;
-          })
-        );
-      } catch (error) {
-        console.error("Error getting animations:", error);
-      }
+    splitCategory(name: string) {
+      const category = name.split(" ")[0].toLowerCase();
+      return category
+    },
+    capitalize(str: string) {
+      return str.charAt(0).toUpperCase() + str.slice(1);
     },
   },
 });
 </script>
+
+<style scoped>
+.ion-text-center {
+  text-align: center;
+}
+
+.custom-toast {
+  --background: var(--ion-color-primary);
+}
+
+.ion-margin-top {
+  margin-top: 20vh;
+}
+</style>

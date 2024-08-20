@@ -1,17 +1,18 @@
 <template>
   <IonCard class="align-middle">
     <IonCardHeader>
-      <IonCardTitle>Online State</IonCardTitle><br>
+      <IonCardTitle>Online State</IonCardTitle>
       <IonButton @click="getOnlineState">Get</IonButton>
     </IonCardHeader>
-    
-    <IonCardContent style="display: flex; justify-content: center; align-items: center;">
-      <IonToggle v-model="online" @ion-change="toggleOnlineState" style="padding: auto;"></IonToggle>
+
+    <IonCardContent class="center-content">
+      <IonToggle v-model="online" @ion-change="toggleOnlineState"></IonToggle>
     </IonCardContent>
   </IonCard>
 </template>
 
 <script lang="ts">
+import { defineComponent, ref } from "vue";
 import {
   IonCard,
   IonCardHeader,
@@ -20,8 +21,6 @@ import {
   IonButton,
   IonToggle,
 } from "@ionic/vue";
-
-import { defineComponent } from "vue";
 import { fetchJson } from "@/provider/Utils";
 
 export default defineComponent({
@@ -40,48 +39,75 @@ export default defineComponent({
       required: true,
     },
   },
-  data() {
-    return {
-      online: false,
-    };
+  mounted() {
+    this.getOnlineState();
   },
-  methods: {
-    async getOnlineState() {
+  setup(props, { emit }) {
+    const online = ref(false);
+
+    const emitMessageEvent = (message: string) => {
+      emit("messageEvent", message);
+    };
+
+    const isAllController = () => {
+      return Array.isArray(props.selectedControllerId) && props.selectedControllerId.includes('all')
+    }
+
+    const fetchOnlineState = async (endpoint: string) => {
       try {
-        const endpoint = this.selectedControllerId == 'all' ? '/led/all/get_online_state' :  `/led/get_online_state/${this.selectedControllerId}`;
-        const response = await fetchJson(endpoint, undefined, false);
-        this.online = response.message.data; // Update online state
-        this.emitMessageEvent(`Online state: ${this.online}`);
+        const response = await fetchJson(endpoint);
+        return response.message?.data || false;
       } catch (error) {
-        console.error("Error getting online state:", error);
+        console.error("Error fetching online state:", error);
+        return false;
       }
-    },
-    async toggleOnlineState(ev: any) {
-      await this.setOnlineState(ev.detail.checked);
-    },
-    async setOnlineState(online: boolean) {
+    };
+
+    const getOnlineState = async () => {
+      const endpoint = isAllController()
+        ? '/led/all/get_online_state'
+        : `/led/get_online_state/${props.selectedControllerId}`;
+      
+      online.value = await fetchOnlineState(endpoint);
+      emitMessageEvent(`Online state: ${online.value}`);
+    };
+
+    const toggleOnlineState = async (ev: any) => {
+      await setOnlineState(ev.detail.checked);
+    };
+
+    const setOnlineState = async (newOnlineState: boolean) => {
       try {
-        const endpoint = this.selectedControllerId == 'all' ? `/led/all/set_online_state` : `/led/set_online_state/${this.selectedControllerId}`;
-        const data = await fetchJson(
-          endpoint,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ online }),
-          },
-          false
-        );
-        this.online = online; // Update online state
-        this.emitMessageEvent(data.message.message);
+        const endpoint = isAllController()
+          ? `/led/all/set_online_state`
+          : `/led/set_online_state/${props.selectedControllerId}`;
+        
+        const response = await fetchJson(endpoint, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ online: newOnlineState }),
+        });
+
+        online.value = newOnlineState;
+        emitMessageEvent(response.message?.message || "State updated successfully");
       } catch (error) {
         console.error("Error setting online state:", error);
       }
-    },
-    emitMessageEvent(message: string) {
-      this.$emit("messageEvent", message);
-    },
+    };
+
+    return {
+      online,
+      getOnlineState,
+      toggleOnlineState,
+    };
   },
 });
 </script>
+
+<style scoped>
+.center-content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+</style>
