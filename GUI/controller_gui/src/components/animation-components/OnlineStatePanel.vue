@@ -32,18 +32,26 @@ export default {
     IonToggle,
   },
   props: {
+    fetchOnlineState: {
+      type: Boolean,
+      default: false,
+    },
     selectedControllerId: {
       type: [String, Array],
       required: true,
+    },
+  },
+  watch: {
+    async fetchOnlineState(newVal: boolean) {
+      if (newVal) {
+        await this.getOnlineState();
+      }
     },
   },
   data() {
     return {
       online: false,
     };
-  },
-  async mounted() {
-    await this.getOnlineState(true);
   },
   computed: {
     isAllController() {
@@ -72,7 +80,7 @@ export default {
 
       this.online = await this.fetchOnlineState(endpoint);
 
-      if(suppressMessage) return;
+      if (suppressMessage) return;
       this.emitMessageEvent(`Online state: ${this.online}`);
     },
 

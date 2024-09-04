@@ -2,12 +2,14 @@
   <div class="general-controls">
     <!-- Online State -->
     <OnlineStatePanel
+      :fetch-online-state="fetchOnline"
       :selected-controller-id="selectedControllerId"
       @message-event="handleMessageEvent"
     />
 
     <!-- Brightness Panel -->
     <BrightnessPanel
+      :fetch-brightness="fetchBrightness"
       :selected-controller-id="selectedControllerId"
       @message-event="handleMessageEvent"
     />
@@ -24,13 +26,13 @@ import BrightnessPanel from "@/components/animation-components/BrightnessPanel.v
 export default defineComponent({
   // Declare emits
   emits: ["message_event"],
-  
+
   // Component registration
   components: {
     OnlineStatePanel,
     BrightnessPanel,
   },
-  
+
   // Props validation
   props: {
     selectedControllerId: {
@@ -38,7 +40,22 @@ export default defineComponent({
       required: true,
     },
   },
-  
+  data() {
+    return {
+      fetchOnline: false,
+      fetchBrightness: false,
+    };
+  },
+  mounted() {
+    this.fetchOnline = true;
+    setTimeout(() => {
+      this.fetchBrightness = true;
+    }, 15 * 1000);
+    setTimeout(() => {
+      this.fetchOnline = false;
+      this.fetchBrightness = false;
+    }, 30 * 1000);
+  },
   // Methods
   methods: {
     handleMessageEvent(message: string) {

@@ -42,13 +42,21 @@ export default defineComponent({
     IonButton,
   },
   props: {
+    fetchBrightness: {
+      type: Boolean,
+      default: false,
+    },
     selectedControllerId: {
       type: [String, Array],
       required: true,
     },
   },
-  async mounted() {
-    await this.getBrightness(true)
+  watch: {
+    async fetchBrightness(newVal: boolean) {
+      if (newVal) {
+        await this.getBrightness();
+      }
+    },
   },
   setup() {
     return {
@@ -82,8 +90,8 @@ export default defineComponent({
         const data = await fetchJson(endpoint, undefined, false);
         this.brightness = data.message.data; // Update brightness from server
         this.brightnessPercentage = (this.brightness * 100) / 255;
-        
-        if(suppressMessage) return;
+
+        if (suppressMessage) return;
 
         this.emitMessageEvent(`Controller brightness: ${this.brightness}`);
       } catch (error) {
