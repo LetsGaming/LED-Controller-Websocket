@@ -17,6 +17,7 @@
         "time_zone": "Europe/Berlin",
         "use_static": false,
         "static_location": ["lat", "long"],
+        "turn_on_time": "sunset",
         "turn_off_time": "00:00"
     }
 }
