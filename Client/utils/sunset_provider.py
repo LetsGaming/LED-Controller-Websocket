@@ -135,7 +135,7 @@ class SunsetProvider:
 
             # Turn off logic
             if self.turn_off_time:
-                if current_time.hour == self.turn_off_time.hourt and current_time.minute == self.turn_off_time.minute:
+                if current_time.hour == self.turn_off_time.hour and current_time.minute == self.turn_off_time.minute:
                     self.callback(False)
 
             time.sleep(60)
