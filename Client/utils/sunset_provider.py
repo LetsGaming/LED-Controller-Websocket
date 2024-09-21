@@ -126,9 +126,9 @@ class SunsetProvider:
                 if current_time >= self.sunset_time:
                     self.callback(True)
                 
-                next_day = (current_time + timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)
-                self.sunset_time = self._get_sunset_time_with_retry(next_day)
-                self._log_times()
+                    next_day = (current_time + timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)
+                    self.sunset_time = self._get_sunset_time_with_retry(next_day)
+                    self._log_times()
                 
             elif self.turn_on_time and current_time.time() >= self.turn_on_time.time():
                 self.callback(True)
