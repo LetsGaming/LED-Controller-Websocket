@@ -1,3 +1,6 @@
 {
-  "serverBaseUrl": "https://your-production-server.com"
+  "server": {
+    "baseUrl": "http://localhost",
+    "port": -1
+  }
 }

@@ -4,9 +4,12 @@ import time
 from flask import Blueprint, jsonify, request, make_response, Response, abort
 from api.config import static_animations, standard_animations, custom_animations, special_animations
 from websocket.websocket_server import WebSocketServer
+from utils.utils import load_config
 
-# Global Constants
-LED_API_PORT = 8888
+_config = load_config()
+LED_API_PORT = _config.get('led_api_port', 6789)
+ALLOW_DUPLICATE_CLIENT_NAMES = _config.get('allow_duplicate_names', False)
+
 EXPECTED_WEBSOCKET_RESPONSES = {}
 
 # Initialize WebSocketHandlerServer
@@ -221,7 +224,7 @@ async def _start_func_for_all(func, clients, animation_name=None, request=None):
 
 
 # Animation endpoints
-@led_api.route('/led/animation/static/<string:animation_name>/<int:controller_id>', methods=['POST'])
+@led_api.route('/led/animations/static/<string:animation_name>/<int:controller_id>', methods=['POST'])
 async def start_static_animation(controller_id, animation_name):
     """
     Start a custom animation on the LED strip.

@@ -1,13 +1,13 @@
 <template>
   <div class="animation-control-panel">
-    <ion-header>
-      <ion-toolbar>
+    <ion-header class="align-middle">
+      <ion-toolbar style="text-align: center;">
         <ion-title>{{ panelName }}</ion-title>
       </ion-toolbar>
     </ion-header>
 
     <!-- Animation Selection -->
-    <ion-item>
+    <ion-item class="align-middle">
       <ion-select v-model="selectedAnimation" label="Choose Animation">
         <ion-select-option
           v-for="(animation, name) in animations"

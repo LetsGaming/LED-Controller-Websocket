@@ -66,7 +66,7 @@ class SunsetProvider:
             return Location(static_location[0], static_location[1])
 
         try:
-            response = requests.get('http://ipinfo.io/json')
+            response = requests.get('https://ipinfo.io/json')
             data = response.json()
             latitude, longitude = map(float, data['loc'].split(','))
             return Location(latitude, longitude)

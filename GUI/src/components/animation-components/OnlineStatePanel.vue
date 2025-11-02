@@ -63,7 +63,7 @@ export default {
       this.$emit("messageEvent", message);
     },
 
-    async fetchOnlineState(endpoint: string) {
+    async fetchOnlineStateData(endpoint: string) {
       try {
         const response = await fetchJson(endpoint);
         return response.message?.data || false;
@@ -78,7 +78,7 @@ export default {
         ? "/led/all/get_online_state"
         : `/led/get_online_state/${this.selectedControllerId}`;
 
-      this.online = await this.fetchOnlineState(endpoint);
+      this.online = await this.fetchOnlineStateData(endpoint);
 
       if (suppressMessage) return;
       this.emitMessageEvent(`Online state: ${this.online}`);

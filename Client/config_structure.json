@@ -1,0 +1,23 @@
+{
+    "strip": {
+        "LED_COUNT": 300,
+        "LED_PIN": 18,
+        "LED_FREQ_HZ": 800000,
+        "LED_DMA": 10,
+        "LED_BRIGHTNESS": 255,
+        "LED_INVERT": false,
+        "LED_CHANNEL": 0
+    },
+    "websocket": {
+        "server_address": "192.168.2.10",
+        "server_port": "8888"
+    },
+    "sunset_provider": {
+        "disable_provider": false,
+        "time_zone": "Europe/Berlin",
+        "use_static": false,
+        "static_location": ["lat", "long"],
+        "turn_on_time": "sunset",
+        "turn_off_time": "00:00"
+    }
+}

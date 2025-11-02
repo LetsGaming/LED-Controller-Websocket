@@ -1,8 +1,14 @@
 {
+  "api": {
     "allowed_origins": [
       "http://your.ip.address",
       "http://localhost",
       "https://yourfrontenddomain.com"
-    ]
+    ],
+    "port": 5000
+  },
+  "websocket": {
+    "port": 8888,
+    "allow_duplicate_names": false
   }
-  
+}

@@ -1,8 +1,8 @@
 <template>
   <div class="animation-input-panel" v-if="!isObjectEmpty(animationData)">
     <ion-card class="align-middle">
-      <IonCardHeader>
-        <ion-card-title>{{ animationData.name }}</ion-card-title>
+      <IonCardHeader style="width: 100%;">
+        <ion-card-title style="text-align: center;">{{ animationData.name }}</ion-card-title>
       </IonCardHeader>
 
       <ion-card-content>
