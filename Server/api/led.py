@@ -25,7 +25,7 @@ def load_led_port():
     global _led_config
     if not _led_config:
         load_led_config()
-    port = _led_config.get("led_api_port", 6789)
+    port = _led_config.get("port", 6789)
     try:
         return int(port)
     except (TypeError, ValueError):
