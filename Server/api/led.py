@@ -1,7 +1,7 @@
 import asyncio
 import threading
 import time
-from Server.utils.logger import LOGGER
+from utils.logger import LOGGER
 from flask import Blueprint, jsonify, request, make_response, Response, abort
 from api.config import static_animations, standard_animations, custom_animations, special_animations
 from websocket.websocket_server import WebSocketServer
