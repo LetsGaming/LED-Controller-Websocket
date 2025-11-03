@@ -1,7 +1,7 @@
 import config from "../../config.json";
 
-const SERVER_BASE_URL = config.serverBaseUrl || "";
-const SERVER_PORT = config.serverPort || "";
+const SERVER_BASE_URL = config.server.baseUrl || "";
+const SERVER_PORT = config.server.port || "";
 
 const LOCALHOST_BASE_URL = "http://localhost";
 const API_PORT = ":5000";
