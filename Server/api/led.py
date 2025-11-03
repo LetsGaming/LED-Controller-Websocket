@@ -6,9 +6,9 @@ from api.config import static_animations, standard_animations, custom_animations
 from websocket.websocket_server import WebSocketServer
 from utils.utils import load_config
 
-_config = load_config()
-LED_API_PORT = _config.get('led_api_port', 6789)
-ALLOW_DUPLICATE_CLIENT_NAMES = _config.get('allow_duplicate_names', False)
+_websocket_config = load_config().get('websocket', {})
+LED_API_PORT = _websocket_config.get('led_api_port', 6789)
+ALLOW_DUPLICATE_CLIENT_NAMES = _websocket_config.get('allow_duplicate_names', False)
 
 EXPECTED_WEBSOCKET_RESPONSES = {}
 

@@ -5,13 +5,19 @@ import os
 from utils.logger import LOGGER
 from utils.utils import ROOT_DIR, load_config
 
-def load_allowed_origins():
+_api_config = None
+
+def load_api_config():
     config = load_config()
-    return config.get("allowed_origins", [])
+    _api_config = config.get("api", {})
+
+    return _api_config
+
+def load_allowed_origins():
+    return _api_config.get("allowed_origins", [])
 
 def load_port():
-    config = load_config()
-    port = config.get("port", 5000)
+    port = _api_config.get("port", 5000)
     try:
         return int(port)
     except (TypeError, ValueError):
@@ -20,6 +26,7 @@ def load_port():
 
 def create_app():
     app = Flask(__name__)
+    load_api_config()
 
     # Read allowed origins from config.json
     allowed_origins = load_allowed_origins()
