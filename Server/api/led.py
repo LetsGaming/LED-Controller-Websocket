@@ -32,7 +32,6 @@ def load_led_port():
         LOGGER.warning("Invalid LED port in config.json, defaulting to 6789.")
         return 6789
 
-
 def allow_duplicate_client_names():
     """Return True if duplicate client names are allowed."""
     global _led_config
@@ -75,8 +74,11 @@ def _check_controller_id_exists(controller_id):
 
     connected_clients = websocket_server.get_connected_clients()
 
-    if controller_id not in connected_clients:
-        abort(404, description=f'Controller ID {controller_id} does not exist')
+    # Extract the list of client IDs
+    connected_client_ids = [client.get("id") for client in connected_clients]
+
+    if controller_id not in connected_client_ids:
+        abort(404, description=f'Controller ID {controller_id} does not exist.')
 
 def _manipulate_response(flask_response: Response, response_data):
     flask_response.data = jsonify(message=response_data).get_data()
