@@ -8,20 +8,22 @@ from utils.utils import ROOT_DIR, load_config
 _api_config = None
 
 def load_api_config():
+    global _api_config
     config = load_config()
     _api_config = config.get("api", {})
-
     return _api_config
 
 def load_allowed_origins():
-    return _api_config.get("allowed_origins", [])
+    global _api_config
+    return _api_config.get("allowed_origins", []) if _api_config else []
 
 def load_port():
-    port = _api_config.get("port", 5000)
+    global _api_config
+    port = _api_config.get("port", 5000) if _api_config else 5000
     try:
         return int(port)
     except (TypeError, ValueError):
-        LOGGER.warning(f"Invalid port in config.json, defaulting to 5000.")
+        LOGGER.warning("Invalid port in config.json, defaulting to 5000.")
         return 5000
 
 def create_app():
