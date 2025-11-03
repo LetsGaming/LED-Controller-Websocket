@@ -155,7 +155,9 @@ export default defineComponent({
           undefined,
           false
         );
-        const connectedControllersArray = Object.values(response_data.data);
+
+        const connectedControllersArray = response_data.data || [];
+
         this.connectedControllers = connectedControllersArray.map(
           (item: any) => ({
             id: item.id,
@@ -164,6 +166,7 @@ export default defineComponent({
         );
       } catch (error) {
         console.error("Error getting connected controllers:", error);
+        this.connectedControllers = [];
       } finally {
         this.isLoading = false;
       }
