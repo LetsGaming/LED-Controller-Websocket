@@ -7,13 +7,18 @@ from api.config import static_animations, standard_animations, custom_animations
 from websocket.websocket_server import WebSocketServer
 from utils.utils import load_config
 
+_led_config = None
+websocket_server = None
+websocket_handler = None
+
+EXPECTED_WEBSOCKET_RESPONSES = {}
+
 def load_led_config():
     """Load LED-specific configuration from config.json"""
     global _led_config
     config = load_config()
     _led_config = config.get("websocket", {})
     return _led_config
-
 
 def load_led_port():
     """Return the configured LED WebSocket port, defaulting to 6789."""
@@ -34,12 +39,6 @@ def allow_duplicate_client_names():
     if not _led_config:
         load_led_config()
     return _led_config.get("allow_duplicate_names", False)
-
-EXPECTED_WEBSOCKET_RESPONSES = {}
-
-# Initialize WebSocketHandlerServer
-websocket_server = None
-websocket_handler = None
 
 def websocket_server_callback(sid, response_data):
     """
