@@ -1,14 +1,39 @@
 import asyncio
 import threading
 import time
+from Server.utils.logger import LOGGER
 from flask import Blueprint, jsonify, request, make_response, Response, abort
 from api.config import static_animations, standard_animations, custom_animations, special_animations
 from websocket.websocket_server import WebSocketServer
 from utils.utils import load_config
 
-_websocket_config = load_config().get('websocket', {})
-LED_API_PORT = _websocket_config.get('led_api_port', 6789)
-ALLOW_DUPLICATE_CLIENT_NAMES = _websocket_config.get('allow_duplicate_names', False)
+def load_led_config():
+    """Load LED-specific configuration from config.json"""
+    global _led_config
+    config = load_config()
+    _led_config = config.get("websocket", {})
+    return _led_config
+
+
+def load_led_port():
+    """Return the configured LED WebSocket port, defaulting to 6789."""
+    global _led_config
+    if not _led_config:
+        load_led_config()
+    port = _led_config.get("led_api_port", 6789)
+    try:
+        return int(port)
+    except (TypeError, ValueError):
+        LOGGER.warning("Invalid LED port in config.json, defaulting to 6789.")
+        return 6789
+
+
+def allow_duplicate_client_names():
+    """Return True if duplicate client names are allowed."""
+    global _led_config
+    if not _led_config:
+        load_led_config()
+    return _led_config.get("allow_duplicate_names", False)
 
 EXPECTED_WEBSOCKET_RESPONSES = {}
 
@@ -25,11 +50,15 @@ def websocket_server_callback(sid, response_data):
         EXPECTED_WEBSOCKET_RESPONSES[sid]['response_data'] = response_data
         
 def initialize_websocket_handler():
+    """Initialize the WebSocket server and handler."""
     global websocket_server, websocket_handler
-    websocket_server = WebSocketServer(LED_API_PORT, websocket_server_callback)
+
+    port = load_led_port()
+    websocket_server = WebSocketServer(port, websocket_server_callback)
     websocket_thread = threading.Thread(target=lambda: asyncio.run(websocket_server.init_server()))
     websocket_thread.start()
     websocket_handler = websocket_server.get_websocket_handler()
+    LOGGER.info(f"WebSocket server initialized on port {port}.")
 
 initialize_websocket_handler()
 
